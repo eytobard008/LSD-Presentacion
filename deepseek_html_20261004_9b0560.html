@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Levitación Óptica de Prismas Hexagonales</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: #0a0a15;
+    color: #e0e0e0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 10px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  h1 { text-align: center; color: #6cf; font-size: 1.4em; margin: 15px 0 5px; }
+  h2 { color: #8df; font-size: 1.1em; border-bottom: 1px solid #345; padding-bottom: 6px; margin: 20px 0 10px; }
+  .container { max-width: 900px; margin: 0 auto; }
+  .panel { background: #12122a; border-radius: 12px; padding: 12px; margin: 15px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+  canvas { display: block; margin: 0 auto; border-radius: 8px; max-width: 100%; height: auto; background: #0a0a15; touch-action: none; }
+  .controls { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+  .control-row { display: flex; align-items: center; gap: 10px; }
+  label { font-size: 13px; color: #abc; flex: 1; }
+  input[type=range] { flex: 2; min-width: 100px; height: 30px; }
+  .value { font-family: monospace; color: #6cf; min-width: 60px; text-align: right; font-size: 13px; }
+  button {
+    background: #2a2a5a; color: #cdf; border: 1px solid #46a;
+    padding: 10px 16px; border-radius: 8px; cursor: pointer;
+    font-size: 14px; margin: 3px; touch-action: manipulation;
+    min-height: 44px;
+  }
+  button.active { background: #46a; color: #fff; }
+  .info { font-size: 12px; color: #89a; line-height: 1.6; margin-top: 8px; }
+  .formula {
+    font-family: monospace; color: #adf; background: #0a0a20;
+    padding: 3px 8px; border-radius: 4px; display: inline-block;
+    margin: 4px 0; font-size: 12px;
+  }
+  .btn-group { display: flex; flex-wrap: wrap; gap: 6px; }
+  .readout {
+    font-family: monospace; font-size: 13px; color: #adf;
+    background: #0a0a20; padding: 8px 12px; border-radius: 6px;
+    margin: 8px 0; line-height: 1.7;
+  }
+  @media (max-width: 600px) {
+    body { padding: 6px; font-size: 14px; }
+    .panel { padding: 10px; margin: 10px 0; }
+    h1 { font-size: 1.2em; }
+    h2 { font-size: 1em; }
+    canvas { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Levitación Óptica de Prismas Hexagonales</h1>
+  <p style="text-align:center; color:#89a; font-size:13px;">Winstone et al., Phys. Rev. Lett. 129, 053604 (2022)</p>
+
+  <!-- PANEL 1: LSD -->
+  <div class="panel">
+    <h2>1. Detector de Sensores Levitados (LSD)</h2>
+    <canvas id="lsdCanvas" width="800" height="420"></canvas>
+    <div class="info">
+      Michelson con dos cavidades Fabry-Pérot. En cada cavidad hay una pila de discos levitada en un antinodo.
+      Un segundo láser lee la posición y enfría la partícula. La partícula <b>no reemplaza los espejos</b>; está dentro de la cavidad.
+      El fotodetector mide la fase de la luz de salida, que cambia cuando la partícula se mueve.
+    </div>
+  </div>
+
+  <!-- PANEL 2: ONDA ESTACIONARIA -->
+  <div class="panel">
+    <h2>2. Onda estacionaria y fuerza de gradiente</h2>
+    <canvas id="waveCanvas" width="800" height="400"></canvas>
+    <div class="controls">
+      <div class="control-row">
+        <label>Desplazamiento:</label>
+        <input type="range" id="prismSlider" min="-75" max="75" step="0.5" value="0">
+        <span class="value" id="prismValue">0.0</span>
+      </div>
+    </div>
+    <div class="info">
+      La onda estacionaria se forma por dos haces contrapropagantes. La intensidad I(z) = I₀cos²(kz) tiene antinodos (máximos) y nodos (mínimos).
+      El prisma es atraído al antinodo. Si se desplaza, la fuerza F(z) = (α/2)dI/dz lo empuja de vuelta.
+    </div>
+  </div>
+
+  <!-- PANEL 3: SCATTERING -->
+  <div class="panel">
+    <h2>3. Scattering: esfera vs disco</h2>
+    <canvas id="scatterCanvas" width="800" height="380"></canvas>
+    <div class="btn-group" style="justify-content:center; margin-top:10px;">
+      <button id="btnSphere" class="active">Esfera pequeña</button>
+      <button id="btnDisk">Disco delgado</button>
+    </div>
+    <div class="info">
+      La esfera pequeña (Rayleigh) dispersa en muchas direcciones → más calentamiento por retroceso.
+      El disco delgado concentra el scattering hacia adelante → menos calentamiento.
+    </div>
+  </div>
+
+  <!-- PANEL 4: PRISMA PEQUEÑO VS GRANDE -->
+  <div class="panel">
+    <h2>4. Prisma pequeño vs prisma grande</h2>
+    <canvas id="sizeCanvas" width="800" height="380"></canvas>
+    <div class="info">
+      El prisma grande cubre más regiones del gradiente del haz gaussiano. Los modos x e y se separan más en el prisma grande
+      porque las resonancias internas (Mie) y el efecto de las esquinas crecen con el radio.
+    </div>
+  </div>
+
+  <!-- PANEL 5: SIMULACIÓN DE FUERZAS -->
+  <div class="panel">
+    <h2>5. Fuerza lateral: mecanismo</h2>
+    <canvas id="forceCanvas" width="800" height="460"></canvas>
+    <div class="controls">
+      <div class="control-row">
+        <label>Gradiente del campo:</label>
+        <input type="range" id="gradSlider" min="-1" max="1" step="0.05" value="0.6">
+        <span class="value" id="gradValue">0.60</span>
+      </div>
+    </div>
+    <div class="readout" id="readout"></div>
+    <div class="info">
+      El campo E apunta en z y varía en x. Eso genera un campo magnético B en y (Faraday).
+      Las cargas oscilan en z y sienten F = qv×B en x. Las cargas + y − se mueven en direcciones opuestas pero tienen signos opuestos,
+      así que ambas son empujadas en la misma dirección. La fuerza promedio es la fuerza de gradiente:
+      <span class="formula">⟨F_x⟩ = (α/4) ∂ₓ|E|²</span>
+    </div>
+  </div>
+
+  <!-- PANEL 6: OSCILADOR -->
+  <div class="panel">
+    <h2>6. Oscilador en la trampa</h2>
+    <canvas id="oscCanvas" width="800" height="360"></canvas>
+    <div class="controls">
+      <div class="control-row">
+        <label>Rigidez k:</label>
+        <input type="range" id="kSlider" min="0.5" max="20" step="0.1" value="2">
+        <span class="value" id="kValue">2.0</span>
+      </div>
+      <div class="control-row">
+        <label>Amortiguación γ:</label>
+        <input type="range" id="gammaSlider" min="0" max="0.5" step="0.01" value="0.05">
+        <span class="value" id="gammaValue">0.05</span>
+      </div>
+      <div class="btn-group">
+        <button id="btnReset">Reiniciar</button>
+        <button id="btnPlayPause">Pausar</button>
+      </div>
+    </div>
+    <div class="info">
+      d²z/dt² = −γ dz/dt − k sin(2z). La frecuencia de oscilación depende de k y de la masa.
+    </div>
+  </div>
+
+  <!-- FÓRMULAS -->
+  <div class="panel">
+    <h2>Fórmulas clave</h2>
+    <div class="info">
+      <b>Fuerza de gradiente:</b> <span class="formula">F = (α/2) ∇⟨E²⟩</span><br>
+      <b>Potencial óptico:</b> <span class="formula">U = −(1/c) ∫ I(r)|ε(r)−1| d²r</span><br>
+      <b>Frecuencia de trampa:</b> <span class="formula">ω₀ = √(k/m)</span><br>
+      <b>Factor de depolarización (disco delgado):</b> <span class="formula">L ≈ 1</span><br>
+      <b>Sensibilidad LSD:</b> <span class="formula">h_limit = (4/ω₀²L)√(k_BT_CM γ_g b / M) [1 + γ_sc/(N_i γ_g)] H(ω₀)</span><br>
+      <b>Figura de mérito térmica:</b> <span class="formula">η_thermal = ω₀² √(M/(ρl))</span><br>
+      <b>Figura de mérito retroceso:</b> <span class="formula">η_recoil = ω₀^(3/2) √(M/γ_sc)</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// PANEL 1: LSD
+// ============================================================
+const lsdCanvas = document.getElementById('lsdCanvas');
+const lctx = lsdCanvas.getContext('2d');
+const LW = lsdCanvas.width, LH = lsdCanvas.height;
+
+function drawLSD() {
+  lctx.clearRect(0, 0, LW, LH);
+  const cx = LW / 2 - 40, cy = LH / 2;
+  const armLen = 120;
+
+  lctx.fillStyle = '#f66';
+  lctx.fillRect(20, cy - 10, 50, 20);
+  lctx.fillStyle = '#fff';
+  lctx.font = '11px monospace';
+  lctx.fillText('láser', 28, cy - 18);
+
+  lctx.strokeStyle = 'rgba(255,100,100,0.7)';
+  lctx.lineWidth = 2.5;
+  lctx.beginPath();
+  lctx.moveTo(70, cy);
+  lctx.lineTo(cx, cy);
+  lctx.stroke();
+
+  lctx.save();
+  lctx.translate(cx, cy);
+  lctx.rotate(Math.PI/4);
+  lctx.fillStyle = 'rgba(200,200,255,0.5)';
+  lctx.fillRect(-20, -2, 40, 4);
+  lctx.restore();
+
+  lctx.strokeStyle = 'rgba(255,100,100,0.7)';
+  lctx.beginPath();
+  lctx.moveTo(cx, cy);
+  lctx.lineTo(cx, cy - armLen);
+  lctx.stroke();
+  lctx.beginPath();
+  lctx.moveTo(cx, cy);
+  lctx.lineTo(cx + armLen, cy);
+  lctx.stroke();
+
+  lctx.fillStyle = '#8cf';
+  lctx.fillRect(cx - 20, cy - armLen - 6, 40, 8);
+  lctx.fillRect(cx + armLen - 4, cy - 20, 8, 40);
+
+  lctx.beginPath();
+  lctx.ellipse(cx, cy - armLen/2, 15, 5, 0, 0, 2*Math.PI);
+  lctx.fillStyle = 'rgba(200,220,255,0.7)';
+  lctx.fill();
+  lctx.strokeStyle = '#8cf';
+  lctx.stroke();
+
+  lctx.beginPath();
+  lctx.ellipse(cx + armLen/2, cy, 15, 5, 0, 0, 2*Math.PI);
+  lctx.fill();
+  lctx.stroke();
+
+  lctx.strokeStyle = 'rgba(255,100,100,0.7)';
+  lctx.beginPath();
+  lctx.moveTo(cx, cy);
+  lctx.lineTo(cx, cy + 80);
+  lctx.stroke();
+
+  lctx.fillStyle = '#4f4';
+  lctx.fillRect(cx - 15, cy + 80, 30, 20);
+  lctx.fillStyle = '#fff';
+  lctx.font = '10px monospace';
+  lctx.fillText('detector', cx - 25, cy + 115);
+
+  lctx.fillStyle = '#fff';
+  lctx.font = '10px monospace';
+  lctx.fillText('pila', cx + 20, cy - armLen/2);
+  lctx.fillText('pila', cx + armLen/2 - 15, cy - 12);
+}
+
+// ============================================================
+// PANEL 2: ONDA ESTACIONARIA
+// ============================================================
+const waveCanvas = document.getElementById('waveCanvas');
+const wctx = waveCanvas.getContext('2d');
+const WW = waveCanvas.width, WH = waveCanvas.height;
+const prismSlider = document.getElementById('prismSlider');
+const prismValue = document.getElementById('prismValue');
+let displacement = 0;
+let waveTime = 0;
+
+prismSlider.addEventListener('input', () => {
+  displacement = parseFloat(prismSlider.value);
+  prismValue.textContent = displacement.toFixed(1);
+});
+
+function drawWave() {
+  wctx.clearRect(0, 0, WW, WH);
+  waveTime += 0.04;
+  const lambdaPx = 130;
+  const k = 2*Math.PI/lambdaPx;
+  const center = WW/2;
+  const px = center + displacement;
+
+  // Campo
+  const fy = 60, fh = 40;
+  wctx.strokeStyle = 'rgba(100,180,255,0.8)';
+  wctx.lineWidth = 1.5;
+  wctx.beginPath();
+  for (let x = 0; x < WW; x++) {
+    const E = Math.cos(k*(x-center))*Math.cos(waveTime);
+    const y = fy - E*fh;
+    if (x===0) wctx.moveTo(x,y); else wctx.lineTo(x,y);
+  }
+  wctx.stroke();
+  wctx.fillStyle = '#5af';
+  wctx.font = '11px monospace';
+  wctx.fillText('E(z,t) = E₀cos(kz)cos(ωt)', 10, fy - fh - 8);
+
+  // Intensidad
+  const iy = 170, ih = 55;
+  for (let x = 0; x < WW; x++) {
+    const I = Math.pow(Math.cos(k*(x-center)/2), 2);
+    wctx.fillStyle = `rgba(80,180,255,${I*0.25})`;
+    wctx.fillRect(x, iy-ih, 1, ih*2);
+  }
+  wctx.strokeStyle = '#4af';
+  wctx.lineWidth = 2;
+  wctx.beginPath();
+  for (let x = 0; x < WW; x++) {
+    const I = Math.pow(Math.cos(k*(x-center)/2), 2);
+    const y = iy - I*ih;
+    if (x===0) wctx.moveTo(x,y); else wctx.lineTo(x,y);
+  }
+  wctx.stroke();
+  wctx.fillStyle = '#4af';
+  wctx.fillText('I(z) = I₀cos²(kz) — antinodos', 10, iy - ih - 8);
+
+  // Prisma
+  const pw = 10, ph = 80;
+  wctx.fillStyle = 'rgba(200,220,255,0.75)';
+  wctx.strokeStyle = '#8cf';
+  wctx.lineWidth = 2;
+  wctx.beginPath();
+  wctx.roundRect(px-pw/2, iy-ph/2, pw, ph, 3);
+  wctx.fill();
+  wctx.stroke();
+
+  // Fuerza
+  const F = -Math.sin(k*px);
+  if (Math.abs(F) > 0.02) {
+    wctx.strokeStyle = '#0f0';
+    wctx.fillStyle = '#0f0';
+    wctx.lineWidth = 2.5;
+    const arrowLen = F*50;
+    wctx.beginPath();
+    wctx.moveTo(px, iy+ph/2+20);
+    wctx.lineTo(px+arrowLen, iy+ph/2+20);
+    wctx.stroke();
+  }
+
+  requestAnimationFrame(drawWave);
+}
+
+// ============================================================
+// PANEL 3: SCATTERING
+// ============================================================
+const scatterCanvas = document.getElementById('scatterCanvas');
+const sctx = scatterCanvas.getContext('2d');
+const SW = scatterCanvas.width, SH = scatterCanvas.height;
+let scatterMode = 'sphere';
+let scatterTime = 0;
+
+document.getElementById('btnSphere').addEventListener('click', () => {
+  scatterMode = 'sphere';
+  document.getElementById('btnSphere').classList.add('active');
+  document.getElementById('btnDisk').classList.remove('active');
+});
+document.getElementById('btnDisk').addEventListener('click', () => {
+  scatterMode = 'disk';
+  document.getElementById('btnDisk').classList.add('active');
+  document.getElementById('btnSphere').classList.remove('active');
+});
+
+function drawScatter() {
+  sctx.clearRect(0, 0, SW, SH);
+  scatterTime += 0.03;
+  const cx = SW/2, cy = SH/2;
+
+  sctx.fillStyle = '#8df';
+  sctx.font = '13px monospace';
+  sctx.fillText(scatterMode==='sphere' ? 'Esfera pequeña (Rayleigh)' : 'Disco delgado (Mie)', 15, 25);
+
+  sctx.strokeStyle = 'rgba(100,200,255,0.2)';
+  sctx.lineWidth = 1.5;
+  for (let x = 0; x < cx-70; x += 18) {
+    sctx.beginPath();
+    for (let y = 0; y < SH; y += 4) {
+      const wave = Math.sin((x+scatterTime*15)/12)*4;
+      if (y===0) sctx.moveTo(x+wave,y); else sctx.lineTo(x+wave,y);
+    }
+    sctx.stroke();
+  }
+
+  sctx.save();
+  sctx.translate(cx, cy);
+  if (scatterMode==='sphere') {
+    sctx.beginPath();
+    sctx.arc(0, 0, 22, 0, 2*Math.PI);
+    sctx.fillStyle = 'rgba(150,200,255,0.5)';
+    sctx.fill();
+    sctx.strokeStyle = '#8cf';
+    sctx.stroke();
+  } else {
+    sctx.beginPath();
+    sctx.roundRect(-7, -45, 14, 90, 4);
+    sctx.fillStyle = 'rgba(150,200,255,0.5)';
+    sctx.fill();
+    sctx.strokeStyle = '#8cf';
+    sctx.stroke();
+  }
+  sctx.restore();
+
+  const numRays = 80;
+  for (let i = 0; i < numRays; i++) {
+    const angle = (i/numRays)*2*Math.PI;
+    let intensity;
+    if (scatterMode==='sphere') {
+      intensity = 0.5 + 0.5*Math.pow(Math.sin(angle), 2);
+    } else {
+      const forward = Math.cos(angle);
+      intensity = Math.exp(-8*(1-forward)) + 0.08;
+    }
+    const inner = scatterMode==='sphere' ? 24 : 16;
+    const len = intensity*110;
+    const x1 = cx + Math.cos(angle)*inner;
+    const y1 = cy + Math.sin(angle)*inner;
+    const x2 = cx + Math.cos(angle)*(inner+len);
+    const y2 = cy + Math.sin(angle)*(inner+len);
+    sctx.strokeStyle = `rgba(255,200,80,${Math.min(intensity,0.9)})`;
+    sctx.lineWidth = 2;
+    sctx.beginPath();
+    sctx.moveTo(x1, y1);
+    sctx.lineTo(x2, y2);
+    sctx.stroke();
+  }
+
+  sctx.fillStyle = '#89a';
+  sctx.font = '11px monospace';
+  sctx.fillText(scatterMode==='sphere' ? 'Muchas direcciones → más calentamiento' : 'Direccional → menos calentamiento', 15, SH-15);
+
+  requestAnimationFrame(drawScatter);
+}
+
+// ============================================================
+// PANEL 4: PRISMA PEQUEÑO VS GRANDE
+// ============================================================
+const sizeCanvas = document.getElementById('sizeCanvas');
+const szctx = sizeCanvas.getContext('2d');
+const SZW = sizeCanvas.width, SZH = sizeCanvas.height;
+
+function drawSize() {
+  szctx.clearRect(0, 0, SZW, SZH);
+  const centerX = SZW/2, centerY = SZH/2;
+
+  for (let y = 0; y < SZH; y++) {
+    const dist = Math.abs(y-centerY)/80;
+    const I = Math.exp(-2*dist*dist);
+    szctx.fillStyle = `rgba(80,180,255,${I*0.12})`;
+    szctx.fillRect(0, y, SZW, 1);
+  }
+
+  szctx.strokeStyle = 'rgba(80,180,255,0.4)';
+  szctx.lineWidth = 2;
+  szctx.beginPath();
+  for (let y = 0; y < SZH; y++) {
+    const dist = Math.abs(y-centerY)/80;
+    const I = Math.exp(-2*dist*dist);
+    const x = 80 + I*280;
+    if (y===0) szctx.moveTo(x,y); else szctx.lineTo(x,y);
+  }
+  szctx.stroke();
+
+  // Prisma pequeño
+  szctx.fillStyle = 'rgba(200,220,255,0.7)';
+  szctx.strokeStyle = '#8cf';
+  szctx.lineWidth = 2;
+  szctx.beginPath();
+  szctx.ellipse(centerX+80, centerY-20, 25, 7, 0, 0, 2*Math.PI);
+  szctx.fill();
+  szctx.stroke();
+  szctx.fillStyle = '#fff';
+  szctx.font = '11px monospace';
+  szctx.fillText('pequeño (1 μm)', centerX+50, centerY-40);
+
+  // Prisma grande
+  szctx.beginPath();
+  szctx.ellipse(centerX+200, centerY-35, 60, 13, 0, 0, 2*Math.PI);
+  szctx.fill();
+  szctx.stroke();
+  szctx.fillText('grande (5 μm)', centerX+165, centerY-60);
+
+  szctx.fillStyle = '#89a';
+  szctx.font = '11px monospace';
+  szctx.fillText('El prisma grande cubre más regiones del gradiente.', 15, SZH-30);
+  szctx.fillText('Los modos x/y se separan más porque las resonancias Mie crecen con el radio.', 15, SZH-15);
+}
+
+// ============================================================
+// PANEL 5: FUERZA LATERAL
+// ============================================================
+const forceCanvas = document.getElementById('forceCanvas');
+const fctx = forceCanvas.getContext('2d');
+const FW = forceCanvas.width, FH = forceCanvas.height;
+const gradSlider = document.getElementById('gradSlider');
+const gradValue = document.getElementById('gradValue');
+const readout = document.getElementById('readout');
+
+let grad = 0.6;
+let charges = [];
+
+gradSlider.addEventListener('input', () => {
+  grad = parseFloat(gradSlider.value);
+  gradValue.textContent = grad.toFixed(2);
+  initCharges();
+  drawForces();
+});
+
+function initCharges() {
+  charges = [];
+  const cx = FW/2, cy = FH/2;
+  const objW = 250, objH = 150;
+  const cols = 5, rows = 5;
+  const dx = objW/(cols+1), dy = objH/(rows+1);
+  for (let i = 1; i <= cols; i++) {
+    for (let j = 1; j <= rows; j++) {
+      const x = cx - objW/2 + i*dx;
+      const y = cy - objH/2 + j*dy;
+      const Ez = 1 + grad*(x-cx)/200;
+      const sep = 10*Math.abs(Ez);
+      charges.push({x, y: y-sep/2, q: +1, type: '+'});
+      charges.push({x, y: y+sep/2, q: -1, type: '-'});
+    }
+  }
+}
+
+function computeFieldAt(x, y) {
+  const cx = FW/2;
+  const Ez_ext = 1 + grad*(x-cx)/200;
+  let Ex = 0, Ez = Ez_ext;
+  const kc = 25;
+  charges.forEach(c => {
+    const dx = x - c.x, dy = y - c.y;
+    const r2 = dx*dx + dy*dy + 16;
+    const r = Math.sqrt(r2);
+    if (r > 4) {
+      Ex += kc*c.q*dx/(r2*r);
+      Ez += kc*c.q*dy/(r2*r);
+    }
+  });
+  return {Ex, Ez};
+}
+
+function drawForces() {
+  fctx.clearRect(0, 0, FW, FH);
+  const cx = FW/2, cy = FH/2;
+
+  // Campo de fondo
+  for (let x = 30; x < FW-30; x += 30) {
+    for (let y = 30; y < FH-30; y += 30) {
+      const {Ex, Ez} = computeFieldAt(x, y);
+      const mag = Math.sqrt(Ex*Ex + Ez*Ez);
+      if (mag > 0.01) {
+        const len = Math.min(mag*10, 16);
+        const angle = Math.atan2(Ez, Ex);
+        fctx.strokeStyle = `rgba(80,160,255,${0.06 + 0.12*Math.min(mag,2)})`;
+        fctx.lineWidth = 0.7;
+        fctx.beginPath();
+        fctx.moveTo(x, y);
+        fctx.lineTo(x + Math.cos(angle)*len, y + Math.sin(angle)*len);
+        fctx.stroke();
+      }
+    }
+  }
+
+  // Objeto
+  const objW = 250, objH = 150;
+  fctx.fillStyle = 'rgba(200,220,255,0.03)';
+  fctx.fillRect(cx-objW/2, cy-objH/2, objW, objH);
+  fctx.strokeStyle = 'rgba(140,200,255,0.2)';
+  fctx.lineWidth = 1;
+  fctx.setLineDash([4,3]);
+  fctx.strokeRect(cx-objW/2, cy-objH/2, objW, objH);
+  fctx.setLineDash([]);
+
+  // Cargas
+  charges.forEach(c => {
+    fctx.beginPath();
+    fctx.arc(c.x, c.y, 4, 0, 2*Math.PI);
+    fctx.fillStyle = c.type==='+' ? 'rgba(255,90,90,0.9)' : 'rgba(90,90,255,0.9)';
+    fctx.fill();
+    fctx.strokeStyle = '#fff';
+    fctx.lineWidth = 0.6;
+    fctx.stroke();
+  });
+
+  // Fuerzas
+  let Fx_total = 0, Fz_total = 0;
+  charges.forEach(c => {
+    const {Ex, Ez} = computeFieldAt(c.x, c.y);
+    const Fx = c.q*Ex;
+    const Fz = c.q*Ez;
+    Fx_total += Fx;
+    Fz_total += Fz;
+    const len = Math.sqrt(Fx*Fx + Fz*Fz);
+    if (len > 0.01) {
+      const angle = Math.atan2(Fz, Fx);
+      const arrowLen = Math.min(len*20, 22);
+      fctx.strokeStyle = 'rgba(255,200,80,0.7)';
+      fctx.lineWidth = 1.2;
+      fctx.beginPath();
+      fctx.moveTo(c.x, c.y);
+      fctx.lineTo(c.x + Math.cos(angle)*arrowLen, c.y + Math.sin(angle)*arrowLen);
+      fctx.stroke();
+    }
+  });
+
+  // Fuerza neta
+  const netScale = 40;
+  fctx.strokeStyle = '#0f0';
+  fctx.fillStyle = '#0f0';
+  fctx.lineWidth = 2.5;
+  const fx0 = cx;
+  const fy0 = cy + objH/2 + 50;
+  const fx1 = fx0 + Fx_total*netScale;
+  const fz1 = fy0 - Fz_total*netScale;
+  fctx.beginPath();
+  fctx.moveTo(fx0, fy0);
+  fctx.lineTo(fx1, fz1);
+  fctx.stroke();
+
+  readout.innerHTML =
+    `Gradiente: ${grad.toFixed(2)}<br>` +
+    `Fuerza neta en x: ${Fx_total.toFixed(4)}<br>` +
+    `Fuerza neta en z: ${Fz_total.toFixed(4)}`;
+
+  fctx.fillStyle = '#89a';
+  fctx.font = '11px monospace';
+  fctx.fillText('Si el gradiente = 0, la fuerza neta en x es 0.', 15, FH-30);
+  fctx.fillText('La fuerza en x emerge del campo de las cargas ligadas.', 15, FH-15);
+}
+
+// ============================================================
+// PANEL 6: OSCILADOR
+// ============================================================
+const oscCanvas = document.getElementById('oscCanvas');
+const octx = oscCanvas.getContext('2d');
+const OW = oscCanvas.width, OH = oscCanvas.height;
+const kSlider = document.getElementById('kSlider');
+const gammaSlider = document.getElementById('gammaSlider');
+const kValue = document.getElementById('kValue');
+const gammaValue = document.getElementById('gammaValue');
+const btnReset = document.getElementById('btnReset');
+const btnPlayPause = document.getElementById('btnPlayPause');
+
+let k = 2.0, gamma = 0.05, z = 1.0, v = 0, t = 0, running = true, history = [];
+
+kSlider.addEventListener('input', () => { k = parseFloat(kSlider.value); kValue.textContent = k.toFixed(1); });
+gammaSlider.addEventListener('input', () => { gamma = parseFloat(gammaSlider.value); gammaValue.textContent = gamma.toFixed(2); });
+btnReset.addEventListener('click', () => { z = 1.0; v = 0; t = 0; history = []; });
+btnPlayPause.addEventListener('click', () => {
+  running = !running;
+  btnPlayPause.textContent = running ? 'Pausar' : 'Reanudar';
+});
+
+function rk4(z, v, dt) {
+  const k1z = v, k1v = -gamma*v - k*Math.sin(2*z);
+  const k2z = v + 0.5*dt*k1v, k2v = -gamma*(v+0.5*dt*k1v) - k*Math.sin(2*(z+0.5*dt*k1z));
+  const k3z = v + 0.5*dt*k2v, k3v = -gamma*(v+0.5*dt*k2v) - k*Math.sin(2*(z+0.5*dt*k2z));
+  const k4z = v + dt*k3v, k4v = -gamma*(v+dt*k3v) - k*Math.sin(2*(z+dt*k3z));
+  return {
+    z: z + (dt/6)*(k1z + 2*k2z + 2*k3z + k4z),
+    v: v + (dt/6)*(k1v + 2*k2v + 2*k3v + k4v)
+  };
+}
+
+function drawOsc() {
+  octx.clearRect(0, 0, OW, OH);
+
+  if (running) {
+    const dt = 0.02;
+    for (let i = 0; i < 3; i++) {
+      const next = rk4(z, v, dt);
+      z = next.z; v = next.v; t += dt;
+      history.push({t, z, v});
+      if (history.length > 400) history.shift();
+    }
+  }
+
+  // Posición
+  const p1x = 30, p1y = 40, p1w = OW-60, p1h = 100;
+  octx.strokeStyle = '#345';
+  octx.strokeRect(p1x, p1y, p1w, p1h);
+  octx.fillStyle = '#8df';
+  octx.font = '11px monospace';
+  octx.fillText('Posición z(t)', p1x, p1y-6);
+
+  if (history.length > 1) {
+    octx.strokeStyle = '#4af';
+    octx.lineWidth = 1.5;
+    octx.beginPath();
+    const tMin = history[0].t, tMax = history[history.length-1].t;
+    const tRange = Math.max(tMax-tMin, 1);
+    history.forEach((pt, i) => {
+      const x = p1x + ((pt.t-tMin)/tRange)*p1w;
+      const y = p1y + p1h/2 - pt.z*(p1h/2)*0.8;
+      if (i===0) octx.moveTo(x,y); else octx.lineTo(x,y);
+    });
+    octx.stroke();
+  }
+
+  // Potencial
+  const p2x = 30, p2y = 180, p2w = OW-60, p2h = 130;
+  octx.strokeStyle = '#345';
+  octx.strokeRect(p2x, p2y, p2w, p2h);
+  octx.fillStyle = '#8df';
+  octx.fillText('Potencial U(z) = −(k/2)cos(2z)', p2x, p2y-6);
+
+  octx.strokeStyle = '#fa4';
+  octx.lineWidth = 1.5;
+  octx.beginPath();
+  for (let i = 0; i <= 150; i++) {
+    const zz = -2 + (i/150)*4;
+    const U = -(k/2)*Math.cos(2*zz);
+    const x = p2x + (i/150)*p2w;
+    const y = p2y + p2h/2 - U*(p2h/2)*0.4;
+    if (i===0) octx.moveTo(x,y); else octx.lineTo(x,y);
+  }
+  octx.stroke();
+
+  const Unow = -(k/2)*Math.cos(2*z);
+  const xNow = p2x + ((z+2)/4)*p2w;
+  const yNow = p2y + p2h/2 - Unow*(p2h/2)*0.4;
+  octx.fillStyle = '#f0f';
+  octx.beginPath();
+  octx.arc(xNow, yNow, 5, 0, 2*Math.PI);
+  octx.fill();
+
+  octx.fillStyle = '#adf';
+  octx.font = '12px monospace';
+  octx.fillText(`t=${t.toFixed(1)}  z=${z.toFixed(2)}  v=${v.toFixed(2)}`, p1x, OH-10);
+
+  requestAnimationFrame(drawOsc);
+}
+
+// Polyfill
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    this.beginPath();
+    this.moveTo(x+r, y);
+    this.arcTo(x+w, y, x+w, y+h, r);
+    this.arcTo(x+w, y+h, x, y+h, r);
+    this.arcTo(x, y+h, x, y, r);
+    this.arcTo(x, y, x+w, y, r);
+    this.closePath();
+    return this;
+  };
+}
+
+// Iniciar todo
+initCharges();
+drawLSD();
+drawWave();
+drawScatter();
+drawSize();
+drawForces();
+drawOsc();
+</script>
+</body>
+</html>
