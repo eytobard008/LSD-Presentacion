@@ -3,142 +3,159 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Levitación Óptica de Prismas Hexagonales</title>
+<title>Levitación Óptica de Prismas Hexagonales - Simulaciones</title>
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body {
-    background: #0a0a15;
-    color: #e0e0e0;
+    background: #0a0a15; color: #e0e0e0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    margin: 0;
-    padding: 10px;
-    font-size: 15px;
-    line-height: 1.5;
+    margin: 0; padding: 8px; font-size: 15px; line-height: 1.5;
   }
-  h1 { text-align: center; color: #6cf; font-size: 1.4em; margin: 15px 0 5px; }
-  h2 { color: #8df; font-size: 1.1em; border-bottom: 1px solid #345; padding-bottom: 6px; margin: 20px 0 10px; }
+  h1 { text-align: center; color: #6cf; font-size: 1.2em; margin: 12px 0 5px; }
+  h2 { color: #8df; font-size: 1.05em; border-bottom: 1px solid #345; padding-bottom: 6px; margin: 18px 0 10px; }
+  h3 { color: #adf; font-size: 0.95em; margin: 10px 0 5px; }
   .container { max-width: 900px; margin: 0 auto; }
-  .panel { background: #12122a; border-radius: 12px; padding: 12px; margin: 15px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+  .panel { background: #12122a; border-radius: 12px; padding: 10px; margin: 12px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
   canvas { display: block; margin: 0 auto; border-radius: 8px; max-width: 100%; height: auto; background: #0a0a15; touch-action: none; }
-  .controls { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
-  .control-row { display: flex; align-items: center; gap: 10px; }
-  label { font-size: 13px; color: #abc; flex: 1; }
-  input[type=range] { flex: 2; min-width: 100px; height: 30px; }
-  .value { font-family: monospace; color: #6cf; min-width: 60px; text-align: right; font-size: 13px; }
+  .controls { display: flex; flex-direction: column; gap: 8px; margin: 8px 0; }
+  .control-row { display: flex; align-items: center; gap: 8px; }
+  label { font-size: 12px; color: #abc; flex: 1; }
+  input[type=range] { flex: 2; min-width: 80px; height: 28px; }
+  .value { font-family: monospace; color: #6cf; min-width: 55px; text-align: right; font-size: 12px; }
+  .readout { font-family: monospace; font-size: 12px; color: #adf; background: #0a0a20; padding: 8px; border-radius: 6px; margin: 6px 0; line-height: 1.6; overflow-x: auto; }
   button {
     background: #2a2a5a; color: #cdf; border: 1px solid #46a;
-    padding: 10px 16px; border-radius: 8px; cursor: pointer;
-    font-size: 14px; margin: 3px; touch-action: manipulation;
-    min-height: 44px;
+    padding: 10px 14px; border-radius: 8px; cursor: pointer;
+    font-size: 13px; margin: 2px; touch-action: manipulation; min-height: 42px;
   }
   button.active { background: #46a; color: #fff; }
-  .info { font-size: 12px; color: #89a; line-height: 1.6; margin-top: 8px; }
-  .formula {
-    font-family: monospace; color: #adf; background: #0a0a20;
-    padding: 3px 8px; border-radius: 4px; display: inline-block;
-    margin: 4px 0; font-size: 12px;
-  }
-  .btn-group { display: flex; flex-wrap: wrap; gap: 6px; }
-  .readout {
-    font-family: monospace; font-size: 13px; color: #adf;
-    background: #0a0a20; padding: 8px 12px; border-radius: 6px;
-    margin: 8px 0; line-height: 1.7;
-  }
+  .btn-group { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+  .eq-box { background: #0a0a20; padding: 10px; border-radius: 6px; margin: 8px 0; text-align: center; overflow-x: auto; font-family: monospace; color: #adf; font-size: 13px; }
+  .note { font-size: 11px; color: #89a; margin: 8px 5px; line-height: 1.6; }
+  .grid-force { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .check-row { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #abc; }
+  .check-row input[type=checkbox] { margin: 0; }
+  @media (max-width: 700px) { .grid-force { grid-template-columns: 1fr; } }
   @media (max-width: 600px) {
-    body { padding: 6px; font-size: 14px; }
-    .panel { padding: 10px; margin: 10px 0; }
-    h1 { font-size: 1.2em; }
-    h2 { font-size: 1em; }
-    canvas { width: 100%; }
+    body { padding: 4px; font-size: 14px; }
+    .panel { padding: 8px; margin: 8px 0; }
+    h1 { font-size: 1.05em; }
+    h2 { font-size: 0.98em; }
   }
 </style>
 </head>
 <body>
 <div class="container">
   <h1>Levitación Óptica de Prismas Hexagonales</h1>
-  <p style="text-align:center; color:#89a; font-size:13px;">Winstone et al., Phys. Rev. Lett. 129, 053604 (2022)</p>
+  <p style="text-align:center; color:#89a; font-size:12px;">Winstone et al., Phys. Rev. Lett. 129, 053604 (2022)</p>
 
-  <!-- PANEL 1: LSD -->
+  <!-- ==================== 1. SCATTERING / FASE EN EL DETECTOR ==================== -->
   <div class="panel">
-    <h2>1. Detector de Sensores Levitados (LSD)</h2>
-    <canvas id="lsdCanvas" width="800" height="420"></canvas>
-    <div class="info">
-      Michelson con dos cavidades Fabry-Pérot. En cada cavidad hay una pila de discos levitada en un antinodo.
-      Un segundo láser lee la posición y enfría la partícula. La partícula <b>no reemplaza los espejos</b>; está dentro de la cavidad.
-      El fotodetector mide la fase de la luz de salida, que cambia cuando la partícula se mueve.
-    </div>
-  </div>
-
-  <!-- PANEL 2: ONDA ESTACIONARIA -->
-  <div class="panel">
-    <h2>2. Onda estacionaria y fuerza de gradiente</h2>
-    <canvas id="waveCanvas" width="800" height="400"></canvas>
+    <h2>1. Scattering y fase en el detector según la posición del cristal</h2>
+    <canvas id="scat1Canvas" width="800" height="500"></canvas>
     <div class="controls">
       <div class="control-row">
-        <label>Desplazamiento:</label>
-        <input type="range" id="prismSlider" min="-75" max="75" step="0.5" value="0">
-        <span class="value" id="prismValue">0.0</span>
+        <label>Posición del cristal (λ = 60 px):</label>
+        <input type="range" id="scat1Pos" min="-90" max="90" step="1" value="0">
+        <span class="value" id="scat1Value"></span>
+      </div>
+      <div class="check-row">
+        <input type="checkbox" id="scat1Auto">
+        <label for="scat1Auto">Mover solo</label>
+      </div>
+      <div class="check-row">
+        <input type="checkbox" id="scat1Counter">
+        <label for="scat1Counter">Añadir haz contrapropagante (como en la trampa)</label>
       </div>
     </div>
-    <div class="info">
-      La onda estacionaria se forma por dos haces contrapropagantes. La intensidad I(z) = I₀cos²(kz) tiene antinodos (máximos) y nodos (mínimos).
-      El prisma es atraído al antinodo. Si se desplaza, la fuerza F(z) = (α/2)dI/dz lo empuja de vuelta.
-    </div>
+    <div class="readout" id="scat1Readout"></div>
+    <p class="note">
+      Naranja: scattering hacia adelante del haz que va a la derecha. Cian: retrodispersión del haz que viene
+      de la derecha (débil, β = 0.3 supuesta). Los puntos de la pantalla suman ambas ondas; el dial suma sus
+      fasores en el centro. El retardo del cristal (0.8 rad), el ancho de los lóbulos y que el haz
+      contrapropagante llegue con fase 0 son supuestos de dibujo.
+    </p>
   </div>
 
-  <!-- PANEL 3: SCATTERING -->
+  <!-- ==================== 2. LSD ==================== -->
   <div class="panel">
-    <h2>3. Scattering: esfera vs disco</h2>
-    <canvas id="scatterCanvas" width="800" height="380"></canvas>
-    <div class="btn-group" style="justify-content:center; margin-top:10px;">
-      <button id="btnSphere" class="active">Esfera pequeña</button>
-      <button id="btnDisk">Disco delgado</button>
-    </div>
-    <div class="info">
-      La esfera pequeña (Rayleigh) dispersa en muchas direcciones → más calentamiento por retroceso.
-      El disco delgado concentra el scattering hacia adelante → menos calentamiento.
-    </div>
-  </div>
-
-  <!-- PANEL 4: PRISMA PEQUEÑO VS GRANDE -->
-  <div class="panel">
-    <h2>4. Prisma pequeño vs prisma grande</h2>
-    <canvas id="sizeCanvas" width="800" height="380"></canvas>
-    <div class="info">
-      El prisma grande cubre más regiones del gradiente del haz gaussiano. Los modos x e y se separan más en el prisma grande
-      porque las resonancias internas (Mie) y el efecto de las esquinas crecen con el radio.
-    </div>
-  </div>
-
-  <!-- PANEL 5: SIMULACIÓN DE FUERZAS -->
-  <div class="panel">
-    <h2>5. Fuerza lateral: mecanismo</h2>
-    <canvas id="forceCanvas" width="800" height="460"></canvas>
+    <h2>2. Detector de Sensores Levitados (LSD)</h2>
+    <canvas id="lsdCanvas" width="800" height="520"></canvas>
     <div class="controls">
       <div class="control-row">
-        <label>Gradiente del campo:</label>
-        <input type="range" id="gradSlider" min="-1" max="1" step="0.05" value="0.6">
-        <span class="value" id="gradValue">0.60</span>
+        <label>Cristal 1:</label>
+        <input type="range" id="lsdX1" min="-50" max="50" step="1" value="0">
+        <span class="value" id="lsdX1Value">0</span>
+      </div>
+      <div class="control-row">
+        <label>Cristal 2:</label>
+        <input type="range" id="lsdX2" min="-50" max="50" step="1" value="0">
+        <span class="value" id="lsdX2Value">0</span>
+      </div>
+      <div class="btn-group">
+        <button id="lsdGW">Onda gravitacional</button>
+        <button id="lsdReset">Reiniciar</button>
       </div>
     </div>
-    <div class="readout" id="readout"></div>
-    <div class="info">
-      El campo E apunta en z y varía en x. Eso genera un campo magnético B en y (Faraday).
-      Las cargas oscilan en z y sienten F = qv×B en x. Las cargas + y − se mueven en direcciones opuestas pero tienen signos opuestos,
-      así que ambas son empujadas en la misma dirección. La fuerza promedio es la fuerza de gradiente:
-      <span class="formula">⟨F_x⟩ = (α/4) ∂ₓ|E|²</span>
-    </div>
+    <p class="note">
+      Michelson con dos cavidades Fabry-Pérot. La luz de los dos brazos se recombina en el divisor.
+      La intensidad en el detector depende de la diferencia de fase entre los brazos.
+      Cuando las partículas se mueven en direcciones opuestas, la intensidad oscila.
+    </p>
   </div>
 
-  <!-- PANEL 6: OSCILADOR -->
+  <!-- ==================== 3. GRADIENTE PARALELO ==================== -->
   <div class="panel">
-    <h2>6. Oscilador en la trampa</h2>
-    <canvas id="oscCanvas" width="800" height="360"></canvas>
+    <h2>3. Gradiente en la dirección del campo</h2>
+    <div class="eq-box">
+      F = qE &nbsp;|&nbsp; ⟨F_x⟩ = p · ∂E_x/∂x
+    </div>
+    <canvas id="parCanvas" width="800" height="400"></canvas>
+    <div class="controls">
+      <div class="control-row">
+        <label>Gradiente ∂E/∂x:</label>
+        <input type="range" id="gradParSlider" min="-1" max="1" step="0.05" value="0.5">
+        <span class="value" id="gradParValue">0.50</span>
+      </div>
+    </div>
+    <p class="note">
+      El campo E_x varía en x. Las cargas + y − están separadas horizontalmente.
+      La fuerza neta es p·∂E_x/∂x. Es puramente eléctrica.
+    </p>
+  </div>
+
+  <!-- ==================== 4. GRADIENTE PERPENDICULAR ==================== -->
+  <div class="panel">
+    <h2>4. Gradiente perpendicular al campo</h2>
+    <div class="eq-box">
+      ∇×E = −∂B/∂t &nbsp;|&nbsp; v = (q/m)∫E dt &nbsp;|&nbsp; F_M = q v×B
+    </div>
+    <div class="grid-force">
+      <div>
+        <h3>Ondas</h3>
+        <canvas id="wavesCanvas" width="420" height="480"></canvas>
+      </div>
+      <div>
+        <h3>Dipolo en el campo</h3>
+        <canvas id="dipoleCanvas" width="420" height="520"></canvas>
+      </div>
+    </div>
+    <p class="note">
+      El campo E apunta en z y varía en x. Eso genera B en y. Las cargas oscilan en z y sienten
+      fuerza magnética en x. Las cargas + y − se mueven en direcciones opuestas, pero tienen signos
+      opuestos, así que ambas son empujadas en la misma dirección.
+    </p>
+  </div>
+
+  <!-- ==================== 5. RIGIDEZ ==================== -->
+  <div class="panel">
+    <h2>5. Rigidez y frecuencia de trampa</h2>
+    <canvas id="rigidityCanvas" width="800" height="560"></canvas>
     <div class="controls">
       <div class="control-row">
         <label>Rigidez k:</label>
-        <input type="range" id="kSlider" min="0.5" max="20" step="0.1" value="2">
-        <span class="value" id="kValue">2.0</span>
+        <input type="range" id="kSlider" min="0.5" max="20" step="0.1" value="4">
+        <span class="value" id="kValue">4.0</span>
       </div>
       <div class="control-row">
         <label>Amortiguación γ:</label>
@@ -146,604 +163,1523 @@
         <span class="value" id="gammaValue">0.05</span>
       </div>
       <div class="btn-group">
-        <button id="btnReset">Reiniciar</button>
-        <button id="btnPlayPause">Pausar</button>
+        <button id="btnResetRig">Reiniciar</button>
+        <button id="btnPauseRig">Pausar</button>
       </div>
     </div>
-    <div class="info">
+    <p class="note">
       d²z/dt² = −γ dz/dt − k sin(2z). La frecuencia de oscilación depende de k y de la masa.
-    </div>
+      El cristal se mueve en el potencial U(z) = −(k/2)cos(2z).
+    </p>
   </div>
 
-  <!-- FÓRMULAS -->
+  <!-- ==================== 6. OBJETO GRANDE ATENÚA RIGIDEZ ==================== -->
   <div class="panel">
-    <h2>Fórmulas clave</h2>
-    <div class="info">
-      <b>Fuerza de gradiente:</b> <span class="formula">F = (α/2) ∇⟨E²⟩</span><br>
-      <b>Potencial óptico:</b> <span class="formula">U = −(1/c) ∫ I(r)|ε(r)−1| d²r</span><br>
-      <b>Frecuencia de trampa:</b> <span class="formula">ω₀ = √(k/m)</span><br>
-      <b>Factor de depolarización (disco delgado):</b> <span class="formula">L ≈ 1</span><br>
-      <b>Sensibilidad LSD:</b> <span class="formula">h_limit = (4/ω₀²L)√(k_BT_CM γ_g b / M) [1 + γ_sc/(N_i γ_g)] H(ω₀)</span><br>
-      <b>Figura de mérito térmica:</b> <span class="formula">η_thermal = ω₀² √(M/(ρl))</span><br>
-      <b>Figura de mérito retroceso:</b> <span class="formula">η_recoil = ω₀^(3/2) √(M/γ_sc)</span>
+    <h2>6. Objeto grande atenúa la rigidez</h2>
+    <canvas id="bigObjCanvas" width="800" height="520"></canvas>
+    <div class="controls">
+      <div class="control-row">
+        <label>Posición z del objeto:</label>
+        <input type="range" id="bigPosSlider" min="0" max="100" step="1" value="30">
+        <span class="value" id="bigPosValue">30</span>
+      </div>
     </div>
+    <p class="note">
+      Arriba: intensidad I(z) = I₀cos²(kz). Abajo: dos bloques. Cada sección se colorea según la dirección
+      de la fuerza que siente: rojo si es atraída hacia el antinodo derecho, azul si hacia el izquierdo.
+      El bloque delgado siente una sola dirección → fuerza neta grande. El bloque grueso tiene zonas
+      rojas y azules que se cancelan → fuerza neta pequeña.
+    </p>
+  </div>
+
+  <!-- ==================== 7. DISPERSIÓN ESFERA VS PRISMA ==================== -->
+  <div class="panel">
+    <h2>7. Dispersión: esfera vs prisma</h2>
+    <canvas id="scatterCanvas" width="800" height="500"></canvas>
+    <p class="note">
+      La esfera pequeña (Rayleigh) dispersa en muchas direcciones → más calentamiento por retroceso.
+      El prisma delgado concentra el scattering hacia adelante → menos calentamiento.
+    </p>
+  </div>
+
+  <!-- ==================== 8. TAMAÑOS A ESCALA ==================== -->
+  <div class="panel">
+    <h2>8. Prismas a escala</h2>
+    <canvas id="scaleCanvas" width="800" height="450"></canvas>
+    <p class="note">
+      El paper no especifica si "diameter" es de cara a cara o de esquina a esquina. Aquí se interpreta
+      como distancia de esquina a esquina. Para B2 se muestra el rango 3–5 μm con el tamaño base de 3 μm sólido
+      y la extensión hasta 5 μm con menor opacidad.
+    </p>
+  </div>
+
+  <!-- ==================== 9. MODOS ==================== -->
+  <div class="panel">
+    <h2>9. Ondas internas: prisma grande vs pequeño</h2>
+    <canvas id="modosCanvas" width="800" height="500"></canvas>
+    <div class="controls">
+      <div class="control-row">
+        <label>Desplazamiento x:</label>
+        <input type="range" id="modosDx" min="-80" max="80" step="1" value="0">
+        <span class="value" id="modosDxValue">0</span>
+      </div>
+      <div class="control-row">
+        <label>Desplazamiento y:</label>
+        <input type="range" id="modosDy" min="-80" max="80" step="1" value="0">
+        <span class="value" id="modosDyValue">0</span>
+      </div>
+    </div>
+    <p class="note">
+      Cada mitad muestra un prisma hexagonal visto de frente. Las ondas sinusoidales internas se propagan
+      en direcciones horizontal (celeste) y vertical (naranja). Al mover el prisma, el patrón de interferencia
+      cambia. El prisma grande tiene más longitudes de onda internas, y las diferencias entre moverse
+      en x o en y son mayores.
+    </p>
   </div>
 </div>
 
 <script>
 // ============================================================
-// PANEL 1: LSD
+// OPTIMIZACIÓN: pausar canvas fuera de pantalla + polyfill roundRect
 // ============================================================
-const lsdCanvas = document.getElementById('lsdCanvas');
-const lctx = lsdCanvas.getContext('2d');
-const LW = lsdCanvas.width, LH = lsdCanvas.height;
-
-function drawLSD() {
-  lctx.clearRect(0, 0, LW, LH);
-  const cx = LW / 2 - 40, cy = LH / 2;
-  const armLen = 120;
-
-  lctx.fillStyle = '#f66';
-  lctx.fillRect(20, cy - 10, 50, 20);
-  lctx.fillStyle = '#fff';
-  lctx.font = '11px monospace';
-  lctx.fillText('láser', 28, cy - 18);
-
-  lctx.strokeStyle = 'rgba(255,100,100,0.7)';
-  lctx.lineWidth = 2.5;
-  lctx.beginPath();
-  lctx.moveTo(70, cy);
-  lctx.lineTo(cx, cy);
-  lctx.stroke();
-
-  lctx.save();
-  lctx.translate(cx, cy);
-  lctx.rotate(Math.PI/4);
-  lctx.fillStyle = 'rgba(200,200,255,0.5)';
-  lctx.fillRect(-20, -2, 40, 4);
-  lctx.restore();
-
-  lctx.strokeStyle = 'rgba(255,100,100,0.7)';
-  lctx.beginPath();
-  lctx.moveTo(cx, cy);
-  lctx.lineTo(cx, cy - armLen);
-  lctx.stroke();
-  lctx.beginPath();
-  lctx.moveTo(cx, cy);
-  lctx.lineTo(cx + armLen, cy);
-  lctx.stroke();
-
-  lctx.fillStyle = '#8cf';
-  lctx.fillRect(cx - 20, cy - armLen - 6, 40, 8);
-  lctx.fillRect(cx + armLen - 4, cy - 20, 8, 40);
-
-  lctx.beginPath();
-  lctx.ellipse(cx, cy - armLen/2, 15, 5, 0, 0, 2*Math.PI);
-  lctx.fillStyle = 'rgba(200,220,255,0.7)';
-  lctx.fill();
-  lctx.strokeStyle = '#8cf';
-  lctx.stroke();
-
-  lctx.beginPath();
-  lctx.ellipse(cx + armLen/2, cy, 15, 5, 0, 0, 2*Math.PI);
-  lctx.fill();
-  lctx.stroke();
-
-  lctx.strokeStyle = 'rgba(255,100,100,0.7)';
-  lctx.beginPath();
-  lctx.moveTo(cx, cy);
-  lctx.lineTo(cx, cy + 80);
-  lctx.stroke();
-
-  lctx.fillStyle = '#4f4';
-  lctx.fillRect(cx - 15, cy + 80, 30, 20);
-  lctx.fillStyle = '#fff';
-  lctx.font = '10px monospace';
-  lctx.fillText('detector', cx - 25, cy + 115);
-
-  lctx.fillStyle = '#fff';
-  lctx.font = '10px monospace';
-  lctx.fillText('pila', cx + 20, cy - armLen/2);
-  lctx.fillText('pila', cx + armLen/2 - 15, cy - 12);
-}
-
-// ============================================================
-// PANEL 2: ONDA ESTACIONARIA
-// ============================================================
-const waveCanvas = document.getElementById('waveCanvas');
-const wctx = waveCanvas.getContext('2d');
-const WW = waveCanvas.width, WH = waveCanvas.height;
-const prismSlider = document.getElementById('prismSlider');
-const prismValue = document.getElementById('prismValue');
-let displacement = 0;
-let waveTime = 0;
-
-prismSlider.addEventListener('input', () => {
-  displacement = parseFloat(prismSlider.value);
-  prismValue.textContent = displacement.toFixed(1);
-});
-
-function drawWave() {
-  wctx.clearRect(0, 0, WW, WH);
-  waveTime += 0.04;
-  const lambdaPx = 130;
-  const k = 2*Math.PI/lambdaPx;
-  const center = WW/2;
-  const px = center + displacement;
-
-  // Campo
-  const fy = 60, fh = 40;
-  wctx.strokeStyle = 'rgba(100,180,255,0.8)';
-  wctx.lineWidth = 1.5;
-  wctx.beginPath();
-  for (let x = 0; x < WW; x++) {
-    const E = Math.cos(k*(x-center))*Math.cos(waveTime);
-    const y = fy - E*fh;
-    if (x===0) wctx.moveTo(x,y); else wctx.lineTo(x,y);
-  }
-  wctx.stroke();
-  wctx.fillStyle = '#5af';
-  wctx.font = '11px monospace';
-  wctx.fillText('E(z,t) = E₀cos(kz)cos(ωt)', 10, fy - fh - 8);
-
-  // Intensidad
-  const iy = 170, ih = 55;
-  for (let x = 0; x < WW; x++) {
-    const I = Math.pow(Math.cos(k*(x-center)/2), 2);
-    wctx.fillStyle = `rgba(80,180,255,${I*0.25})`;
-    wctx.fillRect(x, iy-ih, 1, ih*2);
-  }
-  wctx.strokeStyle = '#4af';
-  wctx.lineWidth = 2;
-  wctx.beginPath();
-  for (let x = 0; x < WW; x++) {
-    const I = Math.pow(Math.cos(k*(x-center)/2), 2);
-    const y = iy - I*ih;
-    if (x===0) wctx.moveTo(x,y); else wctx.lineTo(x,y);
-  }
-  wctx.stroke();
-  wctx.fillStyle = '#4af';
-  wctx.fillText('I(z) = I₀cos²(kz) — antinodos', 10, iy - ih - 8);
-
-  // Prisma
-  const pw = 10, ph = 80;
-  wctx.fillStyle = 'rgba(200,220,255,0.75)';
-  wctx.strokeStyle = '#8cf';
-  wctx.lineWidth = 2;
-  wctx.beginPath();
-  wctx.roundRect(px-pw/2, iy-ph/2, pw, ph, 3);
-  wctx.fill();
-  wctx.stroke();
-
-  // Fuerza
-  const F = -Math.sin(k*px);
-  if (Math.abs(F) > 0.02) {
-    wctx.strokeStyle = '#0f0';
-    wctx.fillStyle = '#0f0';
-    wctx.lineWidth = 2.5;
-    const arrowLen = F*50;
-    wctx.beginPath();
-    wctx.moveTo(px, iy+ph/2+20);
-    wctx.lineTo(px+arrowLen, iy+ph/2+20);
-    wctx.stroke();
+(function(){
+  var P = CanvasRenderingContext2D.prototype;
+  if (!P.roundRect) {
+    P.roundRect = function(x, y, w, h, r) {
+      this.moveTo(x + r, y);
+      this.arcTo(x + w, y, x + w, y + h, r);
+      this.arcTo(x + w, y + h, x, y + h, r);
+      this.arcTo(x, y + h, x, y, r);
+      this.arcTo(x, y, x + w, y, r);
+      this.closePath();
+      return this;
+    };
   }
 
-  requestAnimationFrame(drawWave);
-}
+  var raf = window.requestAnimationFrame.bind(window);
+  var clr = P.clearRect;
+  var vis = new Map();
+  var pend = new Map();
+  var cur = null;
 
-// ============================================================
-// PANEL 3: SCATTERING
-// ============================================================
-const scatterCanvas = document.getElementById('scatterCanvas');
-const sctx = scatterCanvas.getContext('2d');
-const SW = scatterCanvas.width, SH = scatterCanvas.height;
-let scatterMode = 'sphere';
-let scatterTime = 0;
+  P.clearRect = function(a, b, c, d) {
+    cur = this.canvas;
+    return clr.call(this, a, b, c, d);
+  };
 
-document.getElementById('btnSphere').addEventListener('click', () => {
-  scatterMode = 'sphere';
-  document.getElementById('btnSphere').classList.add('active');
-  document.getElementById('btnDisk').classList.remove('active');
-});
-document.getElementById('btnDisk').addEventListener('click', () => {
-  scatterMode = 'disk';
-  document.getElementById('btnDisk').classList.add('active');
-  document.getElementById('btnSphere').classList.remove('active');
-});
-
-function drawScatter() {
-  sctx.clearRect(0, 0, SW, SH);
-  scatterTime += 0.03;
-  const cx = SW/2, cy = SH/2;
-
-  sctx.fillStyle = '#8df';
-  sctx.font = '13px monospace';
-  sctx.fillText(scatterMode==='sphere' ? 'Esfera pequeña (Rayleigh)' : 'Disco delgado (Mie)', 15, 25);
-
-  sctx.strokeStyle = 'rgba(100,200,255,0.2)';
-  sctx.lineWidth = 1.5;
-  for (let x = 0; x < cx-70; x += 18) {
-    sctx.beginPath();
-    for (let y = 0; y < SH; y += 4) {
-      const wave = Math.sin((x+scatterTime*15)/12)*4;
-      if (y===0) sctx.moveTo(x+wave,y); else sctx.lineTo(x+wave,y);
+  window.requestAnimationFrame = function(cb) {
+    var c = cur;
+    if (c && vis.get(c) === false) {
+      pend.set(c, cb);
+      return 0;
     }
-    sctx.stroke();
-  }
+    return raf(cb);
+  };
 
-  sctx.save();
-  sctx.translate(cx, cy);
-  if (scatterMode==='sphere') {
-    sctx.beginPath();
-    sctx.arc(0, 0, 22, 0, 2*Math.PI);
-    sctx.fillStyle = 'rgba(150,200,255,0.5)';
-    sctx.fill();
-    sctx.strokeStyle = '#8cf';
-    sctx.stroke();
-  } else {
-    sctx.beginPath();
-    sctx.roundRect(-7, -45, 14, 90, 4);
-    sctx.fillStyle = 'rgba(150,200,255,0.5)';
-    sctx.fill();
-    sctx.strokeStyle = '#8cf';
-    sctx.stroke();
-  }
-  sctx.restore();
+  var io = new IntersectionObserver(function(es) {
+    es.forEach(function(e) {
+      var c = e.target;
+      vis.set(c, e.isIntersecting);
+      if (e.isIntersecting && pend.has(c)) {
+        var cb = pend.get(c);
+        pend.delete(c);
+        raf(cb);
+      }
+    });
+  }, { rootMargin: '80px' });
 
-  const numRays = 80;
-  for (let i = 0; i < numRays; i++) {
-    const angle = (i/numRays)*2*Math.PI;
-    let intensity;
-    if (scatterMode==='sphere') {
-      intensity = 0.5 + 0.5*Math.pow(Math.sin(angle), 2);
-    } else {
-      const forward = Math.cos(angle);
-      intensity = Math.exp(-8*(1-forward)) + 0.08;
-    }
-    const inner = scatterMode==='sphere' ? 24 : 16;
-    const len = intensity*110;
-    const x1 = cx + Math.cos(angle)*inner;
-    const y1 = cy + Math.sin(angle)*inner;
-    const x2 = cx + Math.cos(angle)*(inner+len);
-    const y2 = cy + Math.sin(angle)*(inner+len);
-    sctx.strokeStyle = `rgba(255,200,80,${Math.min(intensity,0.9)})`;
-    sctx.lineWidth = 2;
-    sctx.beginPath();
-    sctx.moveTo(x1, y1);
-    sctx.lineTo(x2, y2);
-    sctx.stroke();
-  }
-
-  sctx.fillStyle = '#89a';
-  sctx.font = '11px monospace';
-  sctx.fillText(scatterMode==='sphere' ? 'Muchas direcciones → más calentamiento' : 'Direccional → menos calentamiento', 15, SH-15);
-
-  requestAnimationFrame(drawScatter);
-}
-
-// ============================================================
-// PANEL 4: PRISMA PEQUEÑO VS GRANDE
-// ============================================================
-const sizeCanvas = document.getElementById('sizeCanvas');
-const szctx = sizeCanvas.getContext('2d');
-const SZW = sizeCanvas.width, SZH = sizeCanvas.height;
-
-function drawSize() {
-  szctx.clearRect(0, 0, SZW, SZH);
-  const centerX = SZW/2, centerY = SZH/2;
-
-  for (let y = 0; y < SZH; y++) {
-    const dist = Math.abs(y-centerY)/80;
-    const I = Math.exp(-2*dist*dist);
-    szctx.fillStyle = `rgba(80,180,255,${I*0.12})`;
-    szctx.fillRect(0, y, SZW, 1);
-  }
-
-  szctx.strokeStyle = 'rgba(80,180,255,0.4)';
-  szctx.lineWidth = 2;
-  szctx.beginPath();
-  for (let y = 0; y < SZH; y++) {
-    const dist = Math.abs(y-centerY)/80;
-    const I = Math.exp(-2*dist*dist);
-    const x = 80 + I*280;
-    if (y===0) szctx.moveTo(x,y); else szctx.lineTo(x,y);
-  }
-  szctx.stroke();
-
-  // Prisma pequeño
-  szctx.fillStyle = 'rgba(200,220,255,0.7)';
-  szctx.strokeStyle = '#8cf';
-  szctx.lineWidth = 2;
-  szctx.beginPath();
-  szctx.ellipse(centerX+80, centerY-20, 25, 7, 0, 0, 2*Math.PI);
-  szctx.fill();
-  szctx.stroke();
-  szctx.fillStyle = '#fff';
-  szctx.font = '11px monospace';
-  szctx.fillText('pequeño (1 μm)', centerX+50, centerY-40);
-
-  // Prisma grande
-  szctx.beginPath();
-  szctx.ellipse(centerX+200, centerY-35, 60, 13, 0, 0, 2*Math.PI);
-  szctx.fill();
-  szctx.stroke();
-  szctx.fillText('grande (5 μm)', centerX+165, centerY-60);
-
-  szctx.fillStyle = '#89a';
-  szctx.font = '11px monospace';
-  szctx.fillText('El prisma grande cubre más regiones del gradiente.', 15, SZH-30);
-  szctx.fillText('Los modos x/y se separan más porque las resonancias Mie crecen con el radio.', 15, SZH-15);
-}
-
-// ============================================================
-// PANEL 5: FUERZA LATERAL
-// ============================================================
-const forceCanvas = document.getElementById('forceCanvas');
-const fctx = forceCanvas.getContext('2d');
-const FW = forceCanvas.width, FH = forceCanvas.height;
-const gradSlider = document.getElementById('gradSlider');
-const gradValue = document.getElementById('gradValue');
-const readout = document.getElementById('readout');
-
-let grad = 0.6;
-let charges = [];
-
-gradSlider.addEventListener('input', () => {
-  grad = parseFloat(gradSlider.value);
-  gradValue.textContent = grad.toFixed(2);
-  initCharges();
-  drawForces();
-});
-
-function initCharges() {
-  charges = [];
-  const cx = FW/2, cy = FH/2;
-  const objW = 250, objH = 150;
-  const cols = 5, rows = 5;
-  const dx = objW/(cols+1), dy = objH/(rows+1);
-  for (let i = 1; i <= cols; i++) {
-    for (let j = 1; j <= rows; j++) {
-      const x = cx - objW/2 + i*dx;
-      const y = cy - objH/2 + j*dy;
-      const Ez = 1 + grad*(x-cx)/200;
-      const sep = 10*Math.abs(Ez);
-      charges.push({x, y: y-sep/2, q: +1, type: '+'});
-      charges.push({x, y: y+sep/2, q: -1, type: '-'});
-    }
-  }
-}
-
-function computeFieldAt(x, y) {
-  const cx = FW/2;
-  const Ez_ext = 1 + grad*(x-cx)/200;
-  let Ex = 0, Ez = Ez_ext;
-  const kc = 25;
-  charges.forEach(c => {
-    const dx = x - c.x, dy = y - c.y;
-    const r2 = dx*dx + dy*dy + 16;
-    const r = Math.sqrt(r2);
-    if (r > 4) {
-      Ex += kc*c.q*dx/(r2*r);
-      Ez += kc*c.q*dy/(r2*r);
-    }
+  document.querySelectorAll('canvas').forEach(function(c) {
+    io.observe(c);
   });
-  return {Ex, Ez};
-}
+})();
 
-function drawForces() {
-  fctx.clearRect(0, 0, FW, FH);
-  const cx = FW/2, cy = FH/2;
+// ============================================================
+// 1. SCATTERING Y FASE EN EL DETECTOR (versión Claude)
+// ============================================================
+(function() {
+  const $ = i => document.getElementById(i);
+  const canvas = $('scat1Canvas');
+  const g = canvas.getContext('2d');
+  const W = 800, H = 500;
+  const lam = 60, k = 2 * Math.PI / lam, n = 1.5, T = 30, cy = 190, XR = 760;
+  const D0 = 0.8, B = 0.3, TAU = 2 * Math.PI;
 
-  // Campo de fondo
-  for (let x = 30; x < FW-30; x += 30) {
-    for (let y = 30; y < FH-30; y += 30) {
-      const {Ex, Ez} = computeFieldAt(x, y);
-      const mag = Math.sqrt(Ex*Ex + Ez*Ez);
-      if (mag > 0.01) {
-        const len = Math.min(mag*10, 16);
-        const angle = Math.atan2(Ez, Ex);
-        fctx.strokeStyle = `rgba(80,160,255,${0.06 + 0.12*Math.min(mag,2)})`;
-        fctx.lineWidth = 0.7;
-        fctx.beginPath();
-        fctx.moveTo(x, y);
-        fctx.lineTo(x + Math.cos(angle)*len, y + Math.sin(angle)*len);
-        fctx.stroke();
+  const mod = a => ((a % TAU) + TAU) % TAU;
+  const lobeF = d => Math.exp(-Math.pow(d / 25, 2));
+  const lobeB = d => Math.exp(-Math.pow(d / 60, 2));
+  const ANG = [-42, -26, -14, -6, 6, 14, 26, 42];
+
+  function frame(t) {
+    if ($('scat1Auto').checked) $('scat1Pos').value = 85 * Math.sin(t / 2500);
+    const z0 = +$('scat1Pos').value;
+    const two = $('scat1Counter').checked;
+    const wt = (t / 1000 / 1.4) * TAU;
+    const xc = 400 + z0;
+    const x1 = xc - T / 2, x2 = xc + T / 2;
+    $('scat1Value').textContent = (z0 / lam).toFixed(2) + ' λ';
+
+    g.clearRect(0, 0, W, H);
+
+    const ph = x => x < x1 ? k * x : x < x2 ? k * x1 + n * k * (x - x1) : k * x1 + n * k * T + k * (x - x2);
+    const amp = 30;
+
+    // Pantalla a la derecha
+    g.strokeStyle = '#789';
+    g.lineWidth = 3;
+    g.beginPath();
+    g.moveTo(XR, 40);
+    g.lineTo(XR, 340);
+    g.stroke();
+
+    // Campos dispersados
+    const pF = r => k * r + k * xc + D0;
+    const pB = r => k * r - k * xc + D0;
+
+    const ray = (d, L, col, ph0, sc) => {
+      const th = d * Math.PI / 180;
+      const c = Math.cos(th), s = Math.sin(th);
+      g.strokeStyle = col;
+      g.beginPath();
+      let f = 1;
+      for (let r = 16; r < 480; r += 2) {
+        const x = xc + c * r, y = cy + s * r;
+        if (x > XR - 2 || y < 40 || y > 340) break;
+        const u = sc * L * Math.cos(ph0(r) - wt) / Math.sqrt(1 + r / 90);
+        const px = x - s * u, py = y + c * u;
+        if (f) { g.moveTo(px, py); f = 0; } else g.lineTo(px, py);
+      }
+      g.stroke();
+    };
+
+    g.lineWidth = 1.5;
+    ANG.forEach(d => {
+      ray(d, lobeF(d), `rgba(255,170,70,${.45 + .5 * lobeF(d)})`, pF, 12);
+      if (two) ray(d, B * lobeB(d), 'rgba(77,225,255,.9)', pB, 12);
+    });
+
+    // Ejes de onda
+    const seg = (a, b, col, A, off) => {
+      g.strokeStyle = col;
+      g.lineWidth = 2.5;
+      g.beginPath();
+      for (let x = a; x <= b; x += 1.5) {
+        const y = cy - A * amp * Math.cos((off ? k * x : ph(x)) - wt);
+        if (x === a) g.moveTo(x, y); else g.lineTo(x, y);
+      }
+      g.stroke();
+    };
+
+    g.setLineDash([4, 4]);
+    seg(x2, XR - 3, 'rgba(200,200,200,.45)', 1, 1);
+    g.setLineDash([]);
+    seg(10, x1, '#ffd24d', 1);
+    seg(x1, x2, '#ff6b6b', 1);
+    seg(x2, XR - 3, '#5dff9a', .9);
+
+    // Haz contrapropagante
+    if (two) {
+      g.strokeStyle = '#4de1ff';
+      g.lineWidth = 2;
+      g.beginPath();
+      for (let x = XR - 3; x >= 10; x -= 2) {
+        const y = 62 - 16 * Math.cos(-k * x - wt);
+        if (x === XR - 3) g.moveTo(x, y); else g.lineTo(x, y);
+      }
+      g.stroke();
+      g.fillStyle = '#4de1ff';
+      g.font = '11px monospace';
+      g.textAlign = 'left';
+      g.fillText('← haz contrapropagante (llega a la derecha del cristal y lo atraviesa)', 10, 28);
+    }
+
+    // Cristal
+    g.fillStyle = 'rgba(180,210,255,.35)';
+    g.strokeStyle = '#8cf';
+    g.lineWidth = 2;
+    g.fillRect(x1, cy - 55, T, 110);
+    g.strokeRect(x1, cy - 55, T, 110);
+
+    // Pantalla: suma de ambas ondas dispersadas
+    for (let y = 50; y <= 330; y += 14) {
+      const r = Math.hypot(XR - xc, y - cy);
+      const d = Math.atan2(y - cy, XR - xc) * 180 / Math.PI;
+      const den = Math.sqrt(1 + r / 90);
+      let E = lobeF(d) * Math.cos(pF(r) - wt) / den;
+      if (two) E += B * lobeB(d) * Math.cos(pB(r) - wt) / den;
+      g.fillStyle = E > 0 ? '#ffb347' : '#6fa8ff';
+      g.beginPath();
+      g.arc(XR, y, 2 + 5 * Math.min(1, Math.abs(E) * 1.4), 0, TAU);
+      g.fill();
+    }
+
+    // Dial: fasores en el centro de la pantalla
+    const cx0 = 400, cy0 = 430, R = 34;
+    const aF = D0, aB = D0 - 2 * k * xc;
+    const fx = R * Math.cos(aF), fy = -R * Math.sin(aF);
+    const bx = B * R * Math.cos(aB), by = -B * R * Math.sin(aB);
+
+    g.strokeStyle = '#567';
+    g.lineWidth = 1.5;
+    g.beginPath();
+    g.arc(cx0, cy0, R + 8, 0, TAU);
+    g.stroke();
+
+    const ar = (x0, y0, x1_, y1_, c, w) => {
+      g.strokeStyle = c;
+      g.lineWidth = w;
+      g.beginPath();
+      g.moveTo(x0, y0);
+      g.lineTo(x1_, y1_);
+      g.stroke();
+    };
+
+    ar(cx0, cy0, cx0 + fx, cy0 + fy, '#ffb347', 3);
+    let sx = fx, sy = fy;
+    if (two) {
+      ar(cx0 + fx, cy0 + fy, cx0 + fx + bx, cy0 + fy + by, '#4de1ff', 3);
+      sx += bx;
+      sy += by;
+      ar(cx0, cy0, cx0 + sx, cy0 + sy, '#fff', 1.5);
+    }
+    const ang = mod(Math.atan2(-sy, sx));
+    const a2 = Math.hypot(sx, sy) / R;
+
+    g.fillStyle = '#fff';
+    g.font = '12px monospace';
+    g.textAlign = 'center';
+    g.fillText('detector: fase relativa a la luz incidente', cx0, cy0 - 58);
+    g.fillStyle = '#adf';
+    g.fillText((ang * 180 / Math.PI).toFixed(0) + '°  |  intensidad ' + (a2 * a2).toFixed(2), cx0, cy0 + 62);
+
+    g.font = '11px monospace';
+    g.textAlign = 'left';
+    g.fillStyle = '#ffd24d';
+    g.fillText('incidente', 20, cy - 45);
+    g.fillStyle = '#5dff9a';
+    g.fillText('transmitida', 680, cy - 45);
+    g.fillStyle = '#ffb347';
+    g.fillText('scattering adelante', 520, 355);
+
+    $('scat1Readout').innerHTML =
+      `Retardo fijo de la transmitida = ${(((n - 1) * k * T) * 180 / Math.PI).toFixed(0)}° (no depende de la posición)<br>` +
+      (two
+        ? `Retrodispersión del haz ←: ${(mod(aB) * 180 / Math.PI).toFixed(0)}° (gira 360° cada 30 px) · suma en el detector: ${(ang * 180 / Math.PI).toFixed(0)}°, intensidad ${(a2 * a2).toFixed(2)}`
+        : 'Solo un haz: fase del detector fija en ' + (D0 * 180 / Math.PI).toFixed(0) + '° al mover el cristal');
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+// ============================================================
+// 2. LSD
+// ============================================================
+(function() {
+  const canvas = document.getElementById('lsdCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  const WAVELENGTH = 1550e-9;
+  const K = 2 * Math.PI / WAVELENGTH;
+
+  let x1 = 0, x2 = 0;
+  let gwActive = false;
+  let gwPhase = 0;
+  let intensityHistory = [];
+
+  const x1Slider = document.getElementById('lsdX1');
+  const x2Slider = document.getElementById('lsdX2');
+  const x1Value = document.getElementById('lsdX1Value');
+  const x2Value = document.getElementById('lsdX2Value');
+  const btnGW = document.getElementById('lsdGW');
+  const btnReset = document.getElementById('lsdReset');
+
+  x1Slider.addEventListener('input', () => {
+    if (gwActive) return;
+    x1 = parseFloat(x1Slider.value);
+    x1Value.textContent = x1.toFixed(0);
+  });
+  x2Slider.addEventListener('input', () => {
+    if (gwActive) return;
+    x2 = parseFloat(x2Slider.value);
+    x2Value.textContent = x2.toFixed(0);
+  });
+  btnGW.addEventListener('click', () => {
+    gwActive = !gwActive;
+    btnGW.classList.toggle('active', gwActive);
+    btnGW.textContent = gwActive ? 'Detener' : 'Onda gravitacional';
+  });
+  btnReset.addEventListener('click', () => {
+    gwActive = false;
+    btnGW.classList.remove('active');
+    btnGW.textContent = 'Onda gravitacional';
+    x1 = 0; x2 = 0;
+    x1Slider.value = 0; x2Slider.value = 0;
+    x1Value.textContent = '0'; x2Value.textContent = '0';
+    intensityHistory = [];
+  });
+
+  function positionsToNm(val) { return val * 10; }
+
+  function computeIntensity(x1Val, x2Val) {
+    const d1 = positionsToNm(x1Val);
+    const d2 = positionsToNm(x2Val);
+    const deltaL = (d1 - d2) * 1e-9;
+    const deltaPhi = 2 * K * deltaL;
+    const I = Math.pow(Math.cos(deltaPhi / 2), 2);
+    return { I, deltaPhi, deltaL };
+  }
+
+  function drawHexagon(cx, cy, r) {
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const angle = Math.PI / 6 + i * Math.PI / 3;
+      const x = cx + r * Math.cos(angle);
+      const y = cy + r * Math.sin(angle);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(200,220,255,0.7)';
+    ctx.fill();
+    ctx.strokeStyle = '#8cf';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    const cx = 240, cy = 270;
+    const armLen = 150;
+
+    ctx.fillStyle = '#f66';
+    ctx.fillRect(20, cy - 12, 50, 24);
+    ctx.fillStyle = '#fff';
+    ctx.font = '11px monospace';
+    ctx.fillText('láser', 26, cy - 20);
+    ctx.fillText('1550 nm', 18, cy + 38);
+
+    ctx.strokeStyle = 'rgba(255,100,100,0.7)';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(70, cy);
+    ctx.lineTo(cx, cy);
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(Math.PI / 4);
+    ctx.fillStyle = 'rgba(200,200,255,0.5)';
+    ctx.fillRect(-20, -2, 40, 4);
+    ctx.strokeStyle = '#aaf';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(-20, -2, 40, 4);
+    ctx.restore();
+    ctx.fillStyle = '#aaf';
+    ctx.font = '10px monospace';
+    ctx.fillText('divisor', cx + 15, cy + 26);
+
+    ctx.strokeStyle = 'rgba(255,100,100,0.7)';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx, cy - armLen);
+    ctx.stroke();
+
+    ctx.fillStyle = '#8cf';
+    ctx.fillRect(cx - 25, cy - armLen - 6, 50, 8);
+    ctx.fillRect(cx - 25, cy - 55, 50, 8);
+
+    const cristal1Y = cy - 110 - x1 * 0.35;
+    drawHexagon(cx, cristal1Y, 14);
+    ctx.fillStyle = '#fff';
+    ctx.font = '10px monospace';
+    ctx.fillText('cristal 1', cx + 22, cristal1Y + 4);
+
+    ctx.strokeStyle = 'rgba(255,100,100,0.7)';
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + armLen, cy);
+    ctx.stroke();
+
+    ctx.fillStyle = '#8cf';
+    ctx.fillRect(cx + armLen - 4, cy - 25, 8, 50);
+    ctx.fillRect(cx + 55, cy - 25, 8, 50);
+
+    const cristal2X = cx + 110 + x2 * 0.35;
+    drawHexagon(cristal2X, cy, 14);
+    ctx.fillStyle = '#fff';
+    ctx.fillText('cristal 2', cristal2X - 15, cy - 25);
+
+    ctx.strokeStyle = 'rgba(255,100,100,0.7)';
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx, cy + 90);
+    ctx.stroke();
+
+    ctx.fillStyle = '#4f4';
+    ctx.fillRect(cx - 18, cy + 90, 36, 22);
+    ctx.fillStyle = '#fff';
+    ctx.font = '10px monospace';
+    ctx.fillText('fotodetector', cx - 32, cy + 128);
+
+    const { I } = computeIntensity(x1, x2);
+    const scrX = 520, scrY = 30, scrW = 260, scrH = 200;
+
+    ctx.fillStyle = '#050510';
+    ctx.fillRect(scrX, scrY, scrW, scrH);
+    ctx.strokeStyle = '#345';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(scrX, scrY, scrW, scrH);
+
+    const dotCx = scrX + scrW / 2, dotCy = scrY + scrH / 2 - 10, dotR = 55;
+    const brightness = Math.round(255 * Math.sqrt(I));
+    const gradient = ctx.createRadialGradient(dotCx, dotCy, 0, dotCx, dotCy, dotR);
+    gradient.addColorStop(0, `rgba(${brightness},${brightness},${Math.round(brightness * 0.6)},${Math.max(I, 0.05)})`);
+    gradient.addColorStop(0.5, `rgba(${brightness},${brightness},${Math.round(brightness * 0.6)},${Math.max(I * 0.7, 0.03)})`);
+    gradient.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(dotCx, dotCy, dotR, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.strokeStyle = `rgba(255,255,255,${0.1 + 0.2 * I})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(dotCx, dotCy, dotR, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    const barW = scrW - 40, barH = 12, barX = scrX + 20, barY = scrY + scrH - 30;
+    ctx.fillStyle = '#1a1a3a';
+    ctx.fillRect(barX, barY, barW, barH);
+    ctx.fillStyle = `rgb(${Math.round(255 * I)},${Math.round(255 * I)},100)`;
+    ctx.fillRect(barX, barY, barW * I, barH);
+    ctx.strokeStyle = '#456';
+    ctx.strokeRect(barX, barY, barW, barH);
+
+    ctx.fillStyle = '#adf';
+    ctx.font = '11px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(`Intensidad: ${(I * 100).toFixed(1)}%`, scrX + scrW / 2, scrY + scrH - 42);
+    ctx.textAlign = 'left';
+
+    const gx = 520, gy = 270, gw = 260, gh = 130;
+    ctx.fillStyle = '#0a0a20';
+    ctx.fillRect(gx, gy, gw, gh);
+    ctx.strokeStyle = '#345';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(gx, gy, gw, gh);
+
+    ctx.fillStyle = '#8df';
+    ctx.font = '11px monospace';
+    ctx.fillText('Intensidad vs tiempo', gx + 5, gy - 5);
+
+    if (intensityHistory.length > 1) {
+      ctx.strokeStyle = '#4af';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i < intensityHistory.length; i++) {
+        const px = gx + (i / intensityHistory.length) * gw;
+        const py = gy + gh - intensityHistory[i] * gh;
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    }
+  }
+
+  function animate() {
+    if (gwActive) {
+      gwPhase += 0.07;
+      const amp = 40;
+      x1 = amp * Math.sin(gwPhase);
+      x2 = -amp * Math.sin(gwPhase);
+      x1Slider.value = x1;
+      x2Slider.value = x2;
+      x1Value.textContent = x1.toFixed(0);
+      x2Value.textContent = x2.toFixed(0);
+    }
+    const { I } = computeIntensity(x1, x2);
+    intensityHistory.push(I);
+    if (intensityHistory.length > 240) intensityHistory.shift();
+    draw();
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+
+// ============================================================
+// 3. GRADIENTE PARALELO
+// ============================================================
+(function() {
+  const canvas = document.getElementById('parCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  let gradPar = 0.5;
+
+  document.getElementById('gradParSlider').addEventListener('input', function() {
+    gradPar = parseFloat(this.value);
+    document.getElementById('gradParValue').textContent = gradPar.toFixed(2);
+    draw();
+  });
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const cx = W / 2, cy = H / 2;
+
+    ctx.strokeStyle = '#345';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(40, cy);
+    ctx.lineTo(W - 40, cy);
+    ctx.stroke();
+
+    ctx.fillStyle = '#89a';
+    ctx.font = '11px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('x', W - 30, cy - 5);
+
+    for (let y = cy - 90; y <= cy + 90; y += 45) {
+      for (let x = 60; x < W - 60; x += 55) {
+        const Ex = 1 + gradPar * (x - cx) / 200;
+        const len = Ex * 22;
+        const dir = Math.sign(len) || 1;
+        const alpha = 0.25 + 0.5 * Math.min(Math.abs(Ex), 2) / 2;
+        ctx.strokeStyle = `rgba(255,100,100,${alpha})`;
+        ctx.fillStyle = `rgba(255,100,100,${alpha})`;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + len, y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x + len, y);
+        ctx.lineTo(x + len - dir * 6, y - 3);
+        ctx.lineTo(x + len - dir * 6, y + 3);
+        ctx.closePath();
+        ctx.fill();
       }
     }
-  }
+    ctx.fillStyle = '#f66';
+    ctx.font = '12px monospace';
+    ctx.fillText('E', 50, cy - 100);
 
-  // Objeto
-  const objW = 250, objH = 150;
-  fctx.fillStyle = 'rgba(200,220,255,0.03)';
-  fctx.fillRect(cx-objW/2, cy-objH/2, objW, objH);
-  fctx.strokeStyle = 'rgba(140,200,255,0.2)';
-  fctx.lineWidth = 1;
-  fctx.setLineDash([4,3]);
-  fctx.strokeRect(cx-objW/2, cy-objH/2, objW, objH);
-  fctx.setLineDash([]);
+    const sep = 50;
+    const xPlus = cx + sep / 2;
+    const xMinus = cx - sep / 2;
 
-  // Cargas
-  charges.forEach(c => {
-    fctx.beginPath();
-    fctx.arc(c.x, c.y, 4, 0, 2*Math.PI);
-    fctx.fillStyle = c.type==='+' ? 'rgba(255,90,90,0.9)' : 'rgba(90,90,255,0.9)';
-    fctx.fill();
-    fctx.strokeStyle = '#fff';
-    fctx.lineWidth = 0.6;
-    fctx.stroke();
-  });
+    ctx.fillStyle = '#f66';
+    ctx.beginPath();
+    ctx.arc(xPlus, cy, 14, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 16px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('+', xPlus, cy);
 
-  // Fuerzas
-  let Fx_total = 0, Fz_total = 0;
-  charges.forEach(c => {
-    const {Ex, Ez} = computeFieldAt(c.x, c.y);
-    const Fx = c.q*Ex;
-    const Fz = c.q*Ez;
-    Fx_total += Fx;
-    Fz_total += Fz;
-    const len = Math.sqrt(Fx*Fx + Fz*Fz);
-    if (len > 0.01) {
-      const angle = Math.atan2(Fz, Fx);
-      const arrowLen = Math.min(len*20, 22);
-      fctx.strokeStyle = 'rgba(255,200,80,0.7)';
-      fctx.lineWidth = 1.2;
-      fctx.beginPath();
-      fctx.moveTo(c.x, c.y);
-      fctx.lineTo(c.x + Math.cos(angle)*arrowLen, c.y + Math.sin(angle)*arrowLen);
-      fctx.stroke();
+    ctx.fillStyle = '#66f';
+    ctx.beginPath();
+    ctx.arc(xMinus, cy, 14, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.fillText('−', xMinus, cy);
+
+    const Eplus = 1 + gradPar * (xPlus - cx) / 200;
+    const Eminus = 1 + gradPar * (xMinus - cx) / 200;
+    const Fplus = Eplus;
+    const Fminus = -Eminus;
+    const scaleF = 30;
+
+    const FplusPx = Fplus * scaleF;
+    ctx.strokeStyle = '#ff0';
+    ctx.fillStyle = '#ff0';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(xPlus, cy - 30);
+    ctx.lineTo(xPlus + FplusPx, cy - 30);
+    ctx.stroke();
+    const dirP = Math.sign(FplusPx) || 1;
+    ctx.beginPath();
+    ctx.moveTo(xPlus + FplusPx, cy - 30);
+    ctx.lineTo(xPlus + FplusPx - dirP * 8, cy - 36);
+    ctx.lineTo(xPlus + FplusPx - dirP * 8, cy - 24);
+    ctx.closePath();
+    ctx.fill();
+
+    const FminusPx = Fminus * scaleF;
+    ctx.strokeStyle = '#ff0';
+    ctx.fillStyle = '#ff0';
+    ctx.beginPath();
+    ctx.moveTo(xMinus, cy + 30);
+    ctx.lineTo(xMinus + FminusPx, cy + 30);
+    ctx.stroke();
+    const dirM = Math.sign(FminusPx) || 1;
+    ctx.beginPath();
+    ctx.moveTo(xMinus + FminusPx, cy + 30);
+    ctx.lineTo(xMinus + FminusPx - dirM * 8, cy + 24);
+    ctx.lineTo(xMinus + FminusPx - dirM * 8, cy + 36);
+    ctx.closePath();
+    ctx.fill();
+
+    const Fnet = Fplus + Fminus;
+    const FnetPx = Fnet * scaleF * 1.5;
+    ctx.strokeStyle = '#0f0';
+    ctx.fillStyle = '#0f0';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + 90);
+    ctx.lineTo(cx + FnetPx, cy + 90);
+    ctx.stroke();
+    if (Math.abs(FnetPx) > 2) {
+      const dirN = Math.sign(FnetPx);
+      ctx.beginPath();
+      ctx.moveTo(cx + FnetPx, cy + 90);
+      ctx.lineTo(cx + FnetPx - dirN * 10, cy + 84);
+      ctx.lineTo(cx + FnetPx - dirN * 10, cy + 96);
+      ctx.closePath();
+      ctx.fill();
     }
-  });
 
-  // Fuerza neta
-  const netScale = 40;
-  fctx.strokeStyle = '#0f0';
-  fctx.fillStyle = '#0f0';
-  fctx.lineWidth = 2.5;
-  const fx0 = cx;
-  const fy0 = cy + objH/2 + 50;
-  const fx1 = fx0 + Fx_total*netScale;
-  const fz1 = fy0 - Fz_total*netScale;
-  fctx.beginPath();
-  fctx.moveTo(fx0, fy0);
-  fctx.lineTo(fx1, fz1);
-  fctx.stroke();
+    ctx.fillStyle = '#ff0';
+    ctx.font = '12px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText('F₊', xPlus, cy - 45);
+    ctx.fillText('F₋', xMinus, cy + 52);
+    ctx.fillStyle = '#0f0';
+    ctx.fillText('F_neta', cx + FnetPx / 2, cy + 115);
 
-  readout.innerHTML =
-    `Gradiente: ${grad.toFixed(2)}<br>` +
-    `Fuerza neta en x: ${Fx_total.toFixed(4)}<br>` +
-    `Fuerza neta en z: ${Fz_total.toFixed(4)}`;
-
-  fctx.fillStyle = '#89a';
-  fctx.font = '11px monospace';
-  fctx.fillText('Si el gradiente = 0, la fuerza neta en x es 0.', 15, FH-30);
-  fctx.fillText('La fuerza en x emerge del campo de las cargas ligadas.', 15, FH-15);
-}
+    ctx.fillStyle = '#adf';
+    ctx.font = '14px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('∂E/∂x = ' + gradPar.toFixed(2), 20, 30);
+    ctx.fillText('F_neta = ' + Fnet.toFixed(2), 20, 52);
+  }
+  draw();
+})();
 
 // ============================================================
-// PANEL 6: OSCILADOR
+// 4. GRADIENTE PERPENDICULAR (waves + dipole)
 // ============================================================
-const oscCanvas = document.getElementById('oscCanvas');
-const octx = oscCanvas.getContext('2d');
-const OW = oscCanvas.width, OH = oscCanvas.height;
-const kSlider = document.getElementById('kSlider');
-const gammaSlider = document.getElementById('gammaSlider');
-const kValue = document.getElementById('kValue');
-const gammaValue = document.getElementById('gammaValue');
-const btnReset = document.getElementById('btnReset');
-const btnPlayPause = document.getElementById('btnPlayPause');
+(function() {
+  const wavesCanvas = document.getElementById('wavesCanvas');
+  const wctx = wavesCanvas.getContext('2d');
+  const WW = wavesCanvas.width, WH = wavesCanvas.height;
+  let waveT = 0;
 
-let k = 2.0, gamma = 0.05, z = 1.0, v = 0, t = 0, running = true, history = [];
+  function drawArrowW(ctx, x, y, len, color) {
+    if (Math.abs(len) < 1) return;
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x, y - len);
+    ctx.stroke();
+    const dir = Math.sign(len);
+    ctx.beginPath();
+    ctx.moveTo(x, y - len);
+    ctx.lineTo(x - 4, y - len + dir * 7);
+    ctx.lineTo(x + 4, y - len + dir * 7);
+    ctx.closePath();
+    ctx.fill();
+  }
 
-kSlider.addEventListener('input', () => { k = parseFloat(kSlider.value); kValue.textContent = k.toFixed(1); });
-gammaSlider.addEventListener('input', () => { gamma = parseFloat(gammaSlider.value); gammaValue.textContent = gamma.toFixed(2); });
-btnReset.addEventListener('click', () => { z = 1.0; v = 0; t = 0; history = []; });
-btnPlayPause.addEventListener('click', () => {
-  running = !running;
-  btnPlayPause.textContent = running ? 'Pausar' : 'Reanudar';
-});
-
-function rk4(z, v, dt) {
-  const k1z = v, k1v = -gamma*v - k*Math.sin(2*z);
-  const k2z = v + 0.5*dt*k1v, k2v = -gamma*(v+0.5*dt*k1v) - k*Math.sin(2*(z+0.5*dt*k1z));
-  const k3z = v + 0.5*dt*k2v, k3v = -gamma*(v+0.5*dt*k2v) - k*Math.sin(2*(z+0.5*dt*k2z));
-  const k4z = v + dt*k3v, k4v = -gamma*(v+dt*k3v) - k*Math.sin(2*(z+dt*k3z));
-  return {
-    z: z + (dt/6)*(k1z + 2*k2z + 2*k3z + k4z),
-    v: v + (dt/6)*(k1v + 2*k2v + 2*k3v + k4v)
-  };
-}
-
-function drawOsc() {
-  octx.clearRect(0, 0, OW, OH);
-
-  if (running) {
-    const dt = 0.02;
-    for (let i = 0; i < 3; i++) {
-      const next = rk4(z, v, dt);
-      z = next.z; v = next.v; t += dt;
-      history.push({t, z, v});
-      if (history.length > 400) history.shift();
+  function drawBDots(ctx, x, y, Bval) {
+    const r = Math.abs(Bval) * 4;
+    if (r < 0.5) return;
+    if (Bval > 0) {
+      ctx.fillStyle = `rgba(100,150,255,${Math.min(Math.abs(Bval), 1)})`;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, 2 * Math.PI);
+      ctx.fill();
+    } else {
+      ctx.strokeStyle = `rgba(100,150,255,${Math.min(Math.abs(Bval), 1)})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(x - r, y - r);
+      ctx.lineTo(x + r, y + r);
+      ctx.moveTo(x + r, y - r);
+      ctx.lineTo(x - r, y + r);
+      ctx.stroke();
     }
   }
 
-  // Posición
-  const p1x = 30, p1y = 40, p1w = OW-60, p1h = 100;
-  octx.strokeStyle = '#345';
-  octx.strokeRect(p1x, p1y, p1w, p1h);
-  octx.fillStyle = '#8df';
-  octx.font = '11px monospace';
-  octx.fillText('Posición z(t)', p1x, p1y-6);
+  function drawWaves() {
+    wctx.clearRect(0, 0, WW, WH);
+    waveT += 0.06;
+    const A = 40, B = WW - 40;
+    const nWaves = 3;
+    const k = 2 * Math.PI * nWaves / (B - A);
+    const amp = 24;
 
-  if (history.length > 1) {
-    octx.strokeStyle = '#4af';
-    octx.lineWidth = 1.5;
-    octx.beginPath();
-    const tMin = history[0].t, tMax = history[history.length-1].t;
-    const tRange = Math.max(tMax-tMin, 1);
-    history.forEach((pt, i) => {
-      const x = p1x + ((pt.t-tMin)/tRange)*p1w;
-      const y = p1y + p1h/2 - pt.z*(p1h/2)*0.8;
-      if (i===0) octx.moveTo(x,y); else octx.lineTo(x,y);
+    const y1 = 60;
+    for (let x = A; x <= B; x += 14) {
+      const E = Math.cos(k * (x - A) - waveT);
+      drawArrowW(wctx, x, y1, E * amp, `rgba(255,100,100,${Math.abs(E) * 0.7 + 0.2})`);
+    }
+    for (let x = A; x <= B; x += 14) {
+      const Bval = Math.cos(k * (x - A) - waveT);
+      drawBDots(wctx, x, y1 + 40, Bval);
+    }
+    wctx.fillStyle = '#f66';
+    wctx.font = '11px monospace';
+    wctx.textAlign = 'left';
+    wctx.fillText('onda →', A, y1 - 40);
+
+    const y2 = 190;
+    for (let x = A; x <= B; x += 14) {
+      const E = Math.cos(k * (x - A) + waveT);
+      drawArrowW(wctx, x, y2, E * amp, `rgba(255,100,100,${Math.abs(E) * 0.7 + 0.2})`);
+    }
+    for (let x = A; x <= B; x += 14) {
+      const Bval = -Math.cos(k * (x - A) + waveT);
+      drawBDots(wctx, x, y2 + 40, Bval);
+    }
+    wctx.fillStyle = '#f66';
+    wctx.fillText('← onda', A, y2 - 40);
+
+    wctx.fillStyle = '#8df';
+    wctx.font = 'bold 22px monospace';
+    wctx.textAlign = 'center';
+    wctx.fillText('=', WW / 2, 265);
+    wctx.textAlign = 'left';
+
+    const y3 = 360;
+    for (let x = A; x <= B; x += 14) {
+      const E = 2 * Math.cos(k * (x - A)) * Math.cos(waveT);
+      drawArrowW(wctx, x, y3, E * amp * 0.7, `rgba(255,100,100,${Math.abs(E) * 0.5 + 0.15})`);
+    }
+    for (let x = A; x <= B; x += 14) {
+      const Bval = 2 * Math.sin(k * (x - A)) * Math.sin(waveT);
+      drawBDots(wctx, x, y3 + 45, Bval);
+    }
+    wctx.fillStyle = '#f66';
+    wctx.font = '11px monospace';
+    wctx.fillText('onda estacionaria', A, y3 - 65);
+
+    requestAnimationFrame(drawWaves);
+  }
+  drawWaves();
+
+  const dipoleCanvas = document.getElementById('dipoleCanvas');
+  const dctx = dipoleCanvas.getContext('2d');
+  const DW = dipoleCanvas.width, DH = dipoleCanvas.height;
+  let dipoleT = 0;
+
+  function drawArrowS(ctx, x1, y1, x2, y2, color) {
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    const angle = Math.atan2(y2 - y1, x2 - x1);
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - 7 * Math.cos(angle - 0.4), y2 - 7 * Math.sin(angle - 0.4));
+    ctx.lineTo(x2 - 7 * Math.cos(angle + 0.4), y2 - 7 * Math.sin(angle + 0.4));
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  function drawDipole() {
+    dctx.clearRect(0, 0, DW, DH);
+    dipoleT += 0.04;
+    const cx = DW / 2, cy = DH / 2;
+
+    dctx.fillStyle = '#8df';
+    dctx.font = '12px monospace';
+    dctx.textAlign = 'left';
+    dctx.fillText('Dipolo en onda estacionaria', 10, 20);
+
+    dctx.strokeStyle = '#345';
+    dctx.lineWidth = 1;
+    dctx.beginPath(); dctx.moveTo(cx, 45); dctx.lineTo(cx, DH - 45); dctx.stroke();
+    dctx.beginPath(); dctx.moveTo(45, cy); dctx.lineTo(DW - 45, cy); dctx.stroke();
+
+    dctx.fillStyle = '#89a';
+    dctx.font = '11px monospace';
+    dctx.fillText('z', cx + 5, 55);
+    dctx.fillText('x', DW - 30, cy - 5);
+
+    const E = Math.cos(dipoleT);
+    for (let y = 80; y < DH - 60; y += 30) {
+      const arrowLen = E * 22;
+      if (Math.abs(arrowLen) > 2) {
+        drawArrowW(dctx, 70, y, arrowLen, `rgba(255,100,100,0.6)`);
+      }
+    }
+    dctx.fillStyle = '#f66';
+    dctx.font = '12px monospace';
+    dctx.fillText('E', 55, 70);
+
+    const B = Math.sin(dipoleT);
+    for (let y = 80; y < DH - 60; y += 30) {
+      drawBDots(dctx, DW - 70, y, B);
+    }
+    dctx.fillStyle = '#6af';
+    dctx.font = '11px monospace';
+    dctx.fillText('B', DW - 85, 70);
+
+    const sep = 55;
+    const zPlus = cy - sep / 2 - E * 8;
+    const zMinus = cy + sep / 2 + E * 8;
+
+    dctx.strokeStyle = 'rgba(200,200,255,0.3)';
+    dctx.lineWidth = 2;
+    dctx.beginPath();
+    dctx.moveTo(cx, zPlus);
+    dctx.lineTo(cx, zMinus);
+    dctx.stroke();
+
+    dctx.fillStyle = '#f66';
+    dctx.beginPath(); dctx.arc(cx, zPlus, 13, 0, 2 * Math.PI); dctx.fill();
+    dctx.fillStyle = '#fff';
+    dctx.font = 'bold 15px monospace';
+    dctx.textAlign = 'center';
+    dctx.textBaseline = 'middle';
+    dctx.fillText('+', cx, zPlus);
+
+    dctx.fillStyle = '#66f';
+    dctx.beginPath(); dctx.arc(cx, zMinus, 13, 0, 2 * Math.PI); dctx.fill();
+    dctx.fillStyle = '#fff';
+    dctx.fillText('−', cx, zMinus);
+
+    const vPlus = Math.sin(dipoleT) * 25;
+    const vMinus = -Math.sin(dipoleT) * 25;
+
+    drawArrowS(dctx, cx + 30, zPlus, cx + 30, zPlus + vPlus, '#6f6');
+    drawArrowS(dctx, cx + 30, zMinus, cx + 30, zMinus + vMinus, '#6f6');
+
+    dctx.fillStyle = '#6f6';
+    dctx.font = '12px monospace';
+    dctx.textAlign = 'left';
+    dctx.fillText('v', cx + 38, zPlus + vPlus / 2);
+
+    const F = Math.sin(dipoleT) * Math.sin(dipoleT) * 35;
+    drawArrowS(dctx, cx, zPlus - 25, cx - F, zPlus - 25, '#ff0');
+    drawArrowS(dctx, cx, zMinus + 25, cx - F, zMinus + 25, '#ff0');
+
+    dctx.fillStyle = '#ff0';
+    dctx.font = '12px monospace';
+    dctx.fillText('F_M', cx - F - 25, zPlus - 22);
+    dctx.fillText('F_M', cx - F - 25, zMinus + 28);
+
+    dctx.fillStyle = '#89a';
+    dctx.font = '10px monospace';
+    dctx.textAlign = 'center';
+    dctx.fillText('+q se mueve con E. −q se mueve contra E.', DW / 2, DH - 35);
+    dctx.fillText('Ambas cargas sienten fuerza hacia el antinodo.', DW / 2, DH - 20);
+
+    requestAnimationFrame(drawDipole);
+  }
+  drawDipole();
+})();
+
+// ============================================================
+// 5. RIGIDEZ
+// ============================================================
+(function() {
+  const rigCanvas = document.getElementById('rigidityCanvas');
+  const rctx = rigCanvas.getContext('2d');
+  const RW = rigCanvas.width, RH = rigCanvas.height;
+
+  const kSlider = document.getElementById('kSlider');
+  const gammaSlider = document.getElementById('gammaSlider');
+  const kValue = document.getElementById('kValue');
+  const gammaValue = document.getElementById('gammaValue');
+  const btnResetRig = document.getElementById('btnResetRig');
+  const btnPauseRig = document.getElementById('btnPauseRig');
+
+  let kStiff = 4.0, gamma = 0.05, zPos = 1.0, zVel = 0, rigT = 0, rigRunning = true;
+
+  kSlider.addEventListener('input', () => {
+    kStiff = parseFloat(kSlider.value);
+    kValue.textContent = kStiff.toFixed(1);
+  });
+  gammaSlider.addEventListener('input', () => {
+    gamma = parseFloat(gammaSlider.value);
+    gammaValue.textContent = gamma.toFixed(2);
+  });
+  btnResetRig.addEventListener('click', () => {
+    zPos = 1.0; zVel = 0; rigT = 0;
+  });
+  btnPauseRig.addEventListener('click', () => {
+    rigRunning = !rigRunning;
+    btnPauseRig.textContent = rigRunning ? 'Pausar' : 'Reanudar';
+  });
+
+  function rk4(z, v, dt) {
+    const k1z = v, k1v = -gamma * v - kStiff * Math.sin(2 * z);
+    const k2z = v + 0.5 * dt * k1v;
+    const k2v = -gamma * (v + 0.5 * dt * k1v) - kStiff * Math.sin(2 * (z + 0.5 * dt * k1z));
+    const k3z = v + 0.5 * dt * k2v;
+    const k3v = -gamma * (v + 0.5 * dt * k2v) - kStiff * Math.sin(2 * (z + 0.5 * dt * k2z));
+    const k4z = v + dt * k3v;
+    const k4v = -gamma * (v + dt * k3v) - kStiff * Math.sin(2 * (z + dt * k3z));
+    return {
+      z: z + (dt / 6) * (k1z + 2 * k2z + 2 * k3z + k4z),
+      v: v + (dt / 6) * (k1v + 2 * k2v + 2 * k3v + k4v)
+    };
+  }
+
+  const zMin = -4, zMax = 4;
+  function zToPixel(z) { return 40 + ((z - zMin) / (zMax - zMin)) * (RW - 80); }
+
+  function drawRigidity() {
+    rctx.clearRect(0, 0, RW, RH);
+    if (rigRunning) {
+      const dt = 0.025;
+      for (let i = 0; i < 3; i++) {
+        const n = rk4(zPos, zVel, dt);
+        zPos = n.z; zVel = n.v; rigT += dt;
+      }
+    }
+
+    const topH = 280, cy = topH / 2 + 20;
+
+    for (let x = 40; x < RW - 40; x += 1) {
+      const z = zMin + ((x - 40) / (RW - 80)) * (zMax - zMin);
+      const I = Math.pow(Math.cos(z), 2);
+      rctx.fillStyle = `rgba(80,180,255,${I * 0.15})`;
+      rctx.fillRect(x, cy - 80, 1, 160);
+    }
+
+    rctx.strokeStyle = '#4af';
+    rctx.lineWidth = 2;
+    rctx.beginPath();
+    for (let x = 40; x < RW - 40; x++) {
+      const z = zMin + ((x - 40) / (RW - 80)) * (zMax - zMin);
+      const I = Math.pow(Math.cos(z), 2);
+      const y = cy - I * 70;
+      if (x === 40) rctx.moveTo(x, y); else rctx.lineTo(x, y);
+    }
+    rctx.stroke();
+
+    rctx.strokeStyle = 'rgba(100,200,255,0.3)';
+    rctx.setLineDash([5, 5]);
+    for (let n = -2; n <= 2; n++) {
+      const xa = zToPixel(n * Math.PI);
+      if (xa > 40 && xa < RW - 40) {
+        rctx.beginPath();
+        rctx.moveTo(xa, cy - 85);
+        rctx.lineTo(xa, cy + 85);
+        rctx.stroke();
+      }
+    }
+    rctx.setLineDash([]);
+
+    const crystalX = zToPixel(zPos);
+    rctx.fillStyle = 'rgba(200,220,255,0.75)';
+    rctx.strokeStyle = '#8cf';
+    rctx.lineWidth = 2;
+    rctx.beginPath();
+    rctx.roundRect(crystalX - 5, cy - 45, 10, 90, 3);
+    rctx.fill();
+    rctx.stroke();
+
+    rctx.fillStyle = '#8cf';
+    rctx.font = '11px monospace';
+    rctx.textAlign = 'center';
+    rctx.fillText('cristal', crystalX, cy - 60);
+    rctx.fillStyle = '#4af';
+    rctx.fillText('I(z) = I₀ cos²(kz)', RW / 2, 25);
+
+    const botY = topH + 50, botH = RH - botY - 50;
+    rctx.strokeStyle = '#345';
+    rctx.lineWidth = 1;
+    rctx.strokeRect(40, botY, RW - 80, botH);
+
+    rctx.fillStyle = '#fa4';
+    rctx.font = '12px monospace';
+    rctx.textAlign = 'left';
+    rctx.fillText('U(z) = −(k/2) cos(2z)', 45, botY - 8);
+
+    rctx.strokeStyle = '#fa4';
+    rctx.lineWidth = 2;
+    rctx.beginPath();
+    for (let i = 0; i <= 300; i++) {
+      const zz = zMin + (i / 300) * (zMax - zMin);
+      const U = -(kStiff / 2) * Math.cos(2 * zz);
+      const px = 40 + (i / 300) * (RW - 80);
+      const py = botY + botH / 2 - U * (botH / 2) * 0.25;
+      if (i === 0) rctx.moveTo(px, py); else rctx.lineTo(px, py);
+    }
+    rctx.stroke();
+
+    const Unow = -(kStiff / 2) * Math.cos(2 * zPos);
+    const pxNow = zToPixel(zPos);
+    const pyNow = botY + botH / 2 - Unow * (botH / 2) * 0.25;
+    rctx.fillStyle = '#f0f';
+    rctx.beginPath();
+    rctx.arc(pxNow, pyNow, 8, 0, 2 * Math.PI);
+    rctx.fill();
+
+    rctx.fillStyle = '#adf';
+    rctx.font = '13px monospace';
+    rctx.fillText(`z = ${zPos.toFixed(2)}  v = ${zVel.toFixed(2)}  t = ${rigT.toFixed(1)}`, 45, botY + botH + 30);
+
+    requestAnimationFrame(drawRigidity);
+  }
+  drawRigidity();
+})();
+
+// ============================================================
+// 6. OBJETO GRANDE ATENÚA RIGIDEZ
+// ============================================================
+(function() {
+  const bigCanvas = document.getElementById('bigObjCanvas');
+  const bctx = bigCanvas.getContext('2d');
+  const BW = bigCanvas.width, BH = bigCanvas.height;
+  const P = 160;
+  let posZ = 30;
+
+  document.getElementById('bigPosSlider').addEventListener('input', function() {
+    posZ = parseFloat(this.value);
+    document.getElementById('bigPosValue').textContent = posZ.toFixed(0);
+    drawBigObj();
+  });
+
+  function I(z) { return Math.pow(Math.cos(Math.PI * z / P), 2); }
+  function F(z) { return -Math.sin(2 * Math.PI * z / P); }
+
+  function drawBigObj() {
+    bctx.clearRect(0, 0, BW, BH);
+    const zc = (posZ / 100) * BW;
+
+    const iy0 = 30, iH = 110;
+
+    bctx.fillStyle = '#8df';
+    bctx.font = '13px monospace';
+    bctx.textAlign = 'left';
+    bctx.fillText('Intensidad I(z) = I₀ cos²(kz)', 10, 20);
+
+    bctx.fillStyle = 'rgba(80,180,255,0.12)';
+    bctx.beginPath();
+    bctx.moveTo(0, iy0 + iH);
+    for (let x = 0; x <= BW; x++) bctx.lineTo(x, iy0 + iH - I(x) * iH);
+    bctx.lineTo(BW, iy0 + iH);
+    bctx.closePath();
+    bctx.fill();
+
+    bctx.strokeStyle = '#4af';
+    bctx.lineWidth = 2;
+    bctx.beginPath();
+    for (let x = 0; x <= BW; x++) {
+      const y = iy0 + iH - I(x) * iH;
+      if (x === 0) bctx.moveTo(x, y); else bctx.lineTo(x, y);
+    }
+    bctx.stroke();
+
+    bctx.strokeStyle = 'rgba(100,200,255,0.35)';
+    bctx.setLineDash([5, 4]);
+    bctx.lineWidth = 1.5;
+    for (let n = 0; n * P <= BW; n++) {
+      const xa = n * P;
+      bctx.beginPath();
+      bctx.moveTo(xa, iy0 - 5);
+      bctx.lineTo(xa, iy0 + iH + 5);
+      bctx.stroke();
+    }
+    bctx.setLineDash([]);
+
+    const blockY1 = iy0 + iH + 60;
+    const blockY2 = blockY1 + 110;
+    const blockH = 55;
+    const plateT = 30;
+    const thickT = 180;
+
+    function drawBlock(cx, t, y, label, color) {
+      const slices = 80;
+      const sliceW = t / slices;
+      for (let i = 0; i < slices; i++) {
+        const x = cx - t / 2 + i * sliceW;
+        const f = F(x);
+        let r, g, b, a;
+        if (f > 0) {
+          r = 255; g = 80; b = 80; a = 0.3 + 0.5 * Math.abs(f);
+        } else {
+          r = 80; g = 130; b = 255; a = 0.3 + 0.5 * Math.abs(f);
+        }
+        bctx.fillStyle = `rgba(${r},${g},${b},${a})`;
+        bctx.fillRect(x, y, sliceW + 0.5, blockH);
+      }
+      bctx.strokeStyle = color;
+      bctx.lineWidth = 2;
+      bctx.strokeRect(cx - t / 2, y, t, blockH);
+
+      bctx.fillStyle = color;
+      bctx.font = '13px monospace';
+      bctx.textAlign = 'left';
+      bctx.fillText(label, 15, y + blockH / 2 + 5);
+    }
+
+    drawBlock(zc, plateT, blockY1, 'Placa delgada', '#8cf');
+    drawBlock(zc, thickT, blockY2, 'Bloque grueso', '#a8f');
+
+    bctx.fillStyle = '#89a';
+    bctx.font = '11px monospace';
+    bctx.textAlign = 'left';
+    bctx.fillText('Rojo: atracción hacia antinodo derecho. Azul: hacia antinodo izquierdo.', 10, BH - 25);
+    bctx.fillText('El bloque grueso tiene zonas rojas y azules que se cancelan.', 10, BH - 10);
+  }
+  drawBigObj();
+})();
+
+// ============================================================
+// 7. DISPERSIÓN ESFERA VS PRISMA
+// ============================================================
+(function() {
+  const canvas = document.getElementById('scatterCanvas');
+  const ctx = canvas.getContext('2d');
+  const SW = canvas.width, SH = canvas.height;
+
+  ctx.clearRect(0, 0, SW, SH);
+  ctx.fillStyle = '#8df';
+  ctx.font = '13px monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('Esfera: dispersión en muchas direcciones', 15, 22);
+
+  const sphereCx = SW / 2, sphereCy = 130;
+
+  ctx.strokeStyle = 'rgba(255,200,100,0.7)';
+  ctx.lineWidth = 1.5;
+  for (let y = sphereCy - 40; y <= sphereCy + 40; y += 8) {
+    ctx.beginPath();
+    ctx.moveTo(20, y);
+    ctx.lineTo(sphereCx - 30, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(sphereCx - 30, y);
+    ctx.lineTo(sphereCx - 38, y - 4);
+    ctx.lineTo(sphereCx - 38, y + 4);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(255,200,100,0.7)';
+    ctx.fill();
+  }
+
+  ctx.beginPath();
+  ctx.arc(sphereCx, sphereCy, 30, 0, 2 * Math.PI);
+  ctx.fillStyle = 'rgba(150,200,255,0.5)';
+  ctx.fill();
+  ctx.strokeStyle = '#8cf';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  for (let i = 0; i < 60; i++) {
+    const angle = (i / 60) * 2 * Math.PI;
+    const intensity = 0.5 + 0.5 * Math.pow(Math.sin(angle), 2);
+    const len = 30 + intensity * 100;
+    const x1 = sphereCx + Math.cos(angle) * 30;
+    const y1 = sphereCy + Math.sin(angle) * 30;
+    const x2 = sphereCx + Math.cos(angle) * len;
+    const y2 = sphereCy + Math.sin(angle) * len;
+    ctx.strokeStyle = `rgba(255,200,80,${intensity * 0.8})`;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = '#8df';
+  ctx.font = '13px monospace';
+  ctx.fillText('Prisma delgado: dispersión direccional', 15, 280);
+
+  const prismCx = SW / 2, prismCy = 390;
+
+  ctx.strokeStyle = 'rgba(255,200,100,0.7)';
+  ctx.lineWidth = 1.5;
+  for (let y = prismCy - 40; y <= prismCy + 40; y += 8) {
+    ctx.beginPath();
+    ctx.moveTo(20, y);
+    ctx.lineTo(prismCx - 20, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(prismCx - 20, y);
+    ctx.lineTo(prismCx - 28, y - 4);
+    ctx.lineTo(prismCx - 28, y + 4);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(255,200,100,0.7)';
+    ctx.fill();
+  }
+
+  ctx.fillStyle = 'rgba(150,200,255,0.5)';
+  ctx.strokeStyle = '#8cf';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(prismCx - 6, prismCy - 50, 12, 100, 3);
+  ctx.fill();
+  ctx.stroke();
+
+  for (let i = 0; i < 80; i++) {
+    const angle = (i / 80) * 2 * Math.PI;
+    const forward = Math.cos(angle);
+    const intensity = Math.exp(-6 * (1 - forward)) + 0.05;
+    const len = 20 + intensity * 130;
+    const x1 = prismCx + Math.cos(angle) * 10;
+    const y1 = prismCy + Math.sin(angle) * 10;
+    const x2 = prismCx + Math.cos(angle) * len;
+    const y2 = prismCy + Math.sin(angle) * len;
+    ctx.strokeStyle = `rgba(255,200,80,${intensity * 0.8})`;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = '#89a';
+  ctx.font = '11px monospace';
+  ctx.fillText('Esfera: muchas direcciones → más calentamiento por retroceso', 15, SH - 25);
+  ctx.fillText('Prisma: concentra hacia adelante → menos calentamiento', 15, SH - 10);
+})();
+
+// ============================================================
+// 8. TAMAÑOS A ESCALA
+// ============================================================
+(function() {
+  const scaleCanvas = document.getElementById('scaleCanvas');
+  const scctx = scaleCanvas.getContext('2d');
+  const SCW = scaleCanvas.width, SCH = scaleCanvas.height;
+
+  function drawHexagonFront(ctx, cx, cy, D, alpha) {
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const angle = Math.PI / 6 + i * Math.PI / 3;
+      const x = cx + (D / 2) * Math.cos(angle);
+      const y = cy + (D / 2) * Math.sin(angle);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = `rgba(200,220,255,${0.55 * alpha})`;
+    ctx.fill();
+    ctx.strokeStyle = `rgba(140,200,255,${alpha})`;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  function drawSideView(ctx, cx, cy, D, T, alpha) {
+    ctx.fillStyle = `rgba(200,220,255,${0.55 * alpha})`;
+    ctx.strokeStyle = `rgba(140,200,255,${alpha})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.rect(cx - T / 2, cy - D / 2, T, D);
+    ctx.fill();
+    ctx.stroke();
+  }
+
+  scctx.clearRect(0, 0, SCW, SCH);
+
+  scctx.fillStyle = '#8df';
+  scctx.font = '14px monospace';
+  scctx.textAlign = 'left';
+  scctx.fillText('Prismas a escala (vista de frente y de lado)', 15, 25);
+
+  const scale = 50;
+
+  const b1D = 2.5 * scale;
+  const b1T = 0.3 * scale;
+
+  const b2Dmin = 3 * scale;
+  const b2Dmax = 5 * scale;
+  const b2T = 0.2 * scale;
+
+  const b1FrontCx = 130, b1FrontCy = 150;
+  drawHexagonFront(scctx, b1FrontCx, b1FrontCy, b1D, 1);
+  scctx.fillStyle = '#fff';
+  scctx.font = '12px monospace';
+  scctx.textAlign = 'center';
+  scctx.fillText('B1 (frente)', b1FrontCx, b1FrontCy + b1D / 2 + 25);
+  scctx.fillText('⌀ 2.5 μm', b1FrontCx, b1FrontCy);
+
+  const b1SideCx = 290, b1SideCy = 150;
+  drawSideView(scctx, b1SideCx, b1SideCy, b1D, b1T, 1);
+  scctx.fillStyle = '#fff';
+  scctx.fillText('B1 (lado)', b1SideCx, b1SideCy + b1D / 2 + 25);
+  scctx.fillText('t = 300 nm', b1SideCx, b1SideCy);
+
+  const b2FrontCx = 520, b2FrontCy = 170;
+  drawHexagonFront(scctx, b2FrontCx, b2FrontCy, b2Dmax, 0.3);
+  drawHexagonFront(scctx, b2FrontCx, b2FrontCy, b2Dmin, 1);
+
+  scctx.fillStyle = '#fff';
+  scctx.textAlign = 'center';
+  scctx.fillText('B2 (frente)', b2FrontCx, b2FrontCy + b2Dmax / 2 + 30);
+  scctx.fillText('⌀ 3–5 μm', b2FrontCx, b2FrontCy);
+
+  const b2SideCx = 730, b2SideCy = 170;
+  drawSideView(scctx, b2SideCx, b2SideCy, b2Dmax, b2T, 0.3);
+  drawSideView(scctx, b2SideCx, b2SideCy, b2Dmin, b2T, 1);
+
+  scctx.fillStyle = '#fff';
+  scctx.fillText('B2 (lado)', b2SideCx, b2SideCy + b2Dmax / 2 + 30);
+  scctx.fillText('t = 200 nm', b2SideCx, b2SideCy);
+
+  const scaleBarX = 40, scaleBarY = SCH - 40;
+  scctx.strokeStyle = '#fff';
+  scctx.lineWidth = 1.5;
+  scctx.beginPath();
+  scctx.moveTo(scaleBarX, scaleBarY);
+  scctx.lineTo(scaleBarX + scale, scaleBarY);
+  scctx.stroke();
+  scctx.beginPath();
+  scctx.moveTo(scaleBarX, scaleBarY - 5); scctx.lineTo(scaleBarX, scaleBarY + 5);
+  scctx.moveTo(scaleBarX + scale, scaleBarY - 5); scctx.lineTo(scaleBarX + scale, scaleBarY + 5);
+  scctx.stroke();
+  scctx.fillStyle = '#fff';
+  scctx.font = '12px monospace';
+  scctx.textAlign = 'left';
+  scctx.fillText('1 μm', scaleBarX + 15, scaleBarY - 12);
+
+  scctx.fillStyle = '#89a';
+  scctx.font = '11px monospace';
+  scctx.fillText('B1: relación de aspecto ≈ 8:1', 15, SCH - 15);
+  scctx.fillText('B2: relación de aspecto ≈ 15–25:1', 400, SCH - 15);
+})();
+
+// ============================================================
+// 9. MODOS (ondas internas) — optimizado con gradiente radial
+// ============================================================
+(function() {
+  const canvas = document.getElementById('modosCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  let dx = 0, dy = 0;
+  let t = 0;
+
+  document.getElementById('modosDx').addEventListener('input', function() {
+    dx = parseFloat(this.value);
+    document.getElementById('modosDxValue').textContent = dx;
+  });
+  document.getElementById('modosDy').addEventListener('input', function() {
+    dy = parseFloat(this.value);
+    document.getElementById('modosDyValue').textContent = dy;
+  });
+
+  const scale = 40;
+  const lambdaVac = 50;
+  const n = 1.5;
+  const lambdaMed = lambdaVac / n;
+
+  function drawHexagonPath(cx, cy, D) {
+    const a = D / 2;
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const angle = Math.PI / 6 + i * Math.PI / 3;
+      const x = cx + a * Math.cos(angle);
+      const y = cy + a * Math.sin(angle);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+  }
+
+  function drawWavesInHexagon(cx, cy, D, offsetX, offsetY, time) {
+    const a = D / 2;
+    const numHalfWaves = Math.floor(D / (lambdaMed / 2));
+
+    for (let w = 0; w < numHalfWaves; w++) {
+      ctx.beginPath();
+      for (let i = 0; i <= 100; i++) {
+        const y = cy - a + (i / 100) * 2 * a;
+        const phase = 2 * Math.PI * (y - cy - offsetY) / lambdaMed + time;
+        const x = cx + Math.sin(phase) * a * 0.3;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = `rgba(100,200,255,${0.3 + 0.4 * (w / numHalfWaves)})`;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    for (let w = 0; w < numHalfWaves; w++) {
+      ctx.beginPath();
+      for (let i = 0; i <= 100; i++) {
+        const x = cx - a + (i / 100) * 2 * a;
+        const phase = 2 * Math.PI * (x - cx - offsetX) / lambdaMed + time;
+        const y = cy + Math.sin(phase) * a * 0.3;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = `rgba(255,150,100,${0.3 + 0.4 * (w / numHalfWaves)})`;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.08;
+
+    const cx1 = W * 0.25, cx2 = W * 0.75;
+    const cy = H / 2;
+
+    [cx1, cx2].forEach(cx => {
+      const gr = ctx.createRadialGradient(cx, cy, 0, cx, cy, 180);
+      gr.addColorStop(0, 'rgba(80,180,255,0.1)');
+      gr.addColorStop(0.33, 'rgba(80,180,255,0.061)');
+      gr.addColorStop(0.67, 'rgba(80,180,255,0.0135)');
+      gr.addColorStop(1, 'rgba(80,180,255,0.0011)');
+      ctx.fillStyle = gr;
+      ctx.fillRect(cx - 180, cy - 180, 360, 360);
     });
-    octx.stroke();
+
+    const b1D = 2.5 * scale;
+    const b1Cx = cx1 + dx * 0.4;
+    const b1Cy = cy + dy * 0.4;
+
+    ctx.save();
+    drawHexagonPath(b1Cx, b1Cy, b1D);
+    ctx.clip();
+    drawWavesInHexagon(b1Cx, b1Cy, b1D, dx * 0.3, dy * 0.3, t);
+    ctx.restore();
+
+    drawHexagonPath(b1Cx, b1Cy, b1D);
+    ctx.strokeStyle = '#8cf';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.fillStyle = '#fff';
+    ctx.font = '13px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('B1 (2.5 μm)', cx1, H - 40);
+    ctx.fillStyle = '#89a';
+    ctx.font = '11px monospace';
+    ctx.fillText('perímetro ~7.5 μm', cx1, H - 22);
+
+    const b2D = 4 * scale;
+    const b2Cx = cx2 + dx * 0.4;
+    const b2Cy = cy + dy * 0.4;
+
+    ctx.save();
+    drawHexagonPath(b2Cx, b2Cy, b2D);
+    ctx.clip();
+    drawWavesInHexagon(b2Cx, b2Cy, b2D, dx * 0.3, dy * 0.3, t);
+    ctx.restore();
+
+    drawHexagonPath(b2Cx, b2Cy, b2D);
+    ctx.strokeStyle = '#8cf';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.fillStyle = '#fff';
+    ctx.font = '13px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('B2 (4 μm)', cx2, H - 40);
+    ctx.fillStyle = '#89a';
+    ctx.font = '11px monospace';
+    ctx.fillText('perímetro ~12 μm', cx2, H - 22);
+
+    ctx.fillStyle = '#adf';
+    ctx.font = '12px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('Desplazamiento x = ' + dx + ', y = ' + dy, 15, 25);
+
+    requestAnimationFrame(draw);
   }
-
-  // Potencial
-  const p2x = 30, p2y = 180, p2w = OW-60, p2h = 130;
-  octx.strokeStyle = '#345';
-  octx.strokeRect(p2x, p2y, p2w, p2h);
-  octx.fillStyle = '#8df';
-  octx.fillText('Potencial U(z) = −(k/2)cos(2z)', p2x, p2y-6);
-
-  octx.strokeStyle = '#fa4';
-  octx.lineWidth = 1.5;
-  octx.beginPath();
-  for (let i = 0; i <= 150; i++) {
-    const zz = -2 + (i/150)*4;
-    const U = -(k/2)*Math.cos(2*zz);
-    const x = p2x + (i/150)*p2w;
-    const y = p2y + p2h/2 - U*(p2h/2)*0.4;
-    if (i===0) octx.moveTo(x,y); else octx.lineTo(x,y);
-  }
-  octx.stroke();
-
-  const Unow = -(k/2)*Math.cos(2*z);
-  const xNow = p2x + ((z+2)/4)*p2w;
-  const yNow = p2y + p2h/2 - Unow*(p2h/2)*0.4;
-  octx.fillStyle = '#f0f';
-  octx.beginPath();
-  octx.arc(xNow, yNow, 5, 0, 2*Math.PI);
-  octx.fill();
-
-  octx.fillStyle = '#adf';
-  octx.font = '12px monospace';
-  octx.fillText(`t=${t.toFixed(1)}  z=${z.toFixed(2)}  v=${v.toFixed(2)}`, p1x, OH-10);
-
-  requestAnimationFrame(drawOsc);
-}
-
-// Polyfill
-if (!CanvasRenderingContext2D.prototype.roundRect) {
-  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
-    this.beginPath();
-    this.moveTo(x+r, y);
-    this.arcTo(x+w, y, x+w, y+h, r);
-    this.arcTo(x+w, y+h, x, y+h, r);
-    this.arcTo(x, y+h, x, y, r);
-    this.arcTo(x, y, x+w, y, r);
-    this.closePath();
-    return this;
-  };
-}
-
-// Iniciar todo
-initCharges();
-drawLSD();
-drawWave();
-drawScatter();
-drawSize();
-drawForces();
-drawOsc();
+  draw();
+})();
 </script>
 </body>
 </html>
